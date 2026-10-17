@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}Evidence exports{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Oversight</div>
+  <h1>Evidence exports</h1>
+  <p>A regulator-ready pack for any complaint. Each export is itself recorded in the case's audit trail.</p></div></div>
+<section class="card mb" style="max-width:920px"><div class="card-b stack sm">
+  <h3>What's in a pack</h3>
+  <ul class="small muted" style="margin:0;padding-left:18px;display:grid;gap:4px">
+    <li>Evidence PDF: cited payment trail, diagnosis, rule arithmetic, referral check, approval record</li>
+    <li>Source documents from the customer and the bank-record extracts pulled by the connector</li>
+    <li>Case file, full audit trail (tool inputs and outputs) and the decision log as JSON</li>
+    <li><span class="mono">MANIFEST.json</span> with a SHA-256 hash of every file, so nothing can change unnoticed after export</li>
+  </ul>
+  <p class="tiny faint">Hashes prove integrity, not identity: packs are not digitally signed in this prototype.</p>
+</div></section>
+<section class="tablecard" data-tour="table"><div class="tablewrap"><table>
+  <thead><tr><th>Case</th><th>Complaint</th><th>Status</th><th class="right">Downloads</th></tr></thead>
+  <tbody>{% for r in rows %}
+    <tr><td><a class="caseid" href="{% url 'auditor-replay' r.id %}">{{ r.ref }}</a></td><td><span class="strong">{{ r.title }}</span><span class="sub">{{ r.customer_ref }} · {{ r.amount_inr|inr }}</span></td>
+      <td><span class="chip {{ r.status|status_slug }}">{{ r.status }}</span></td>
+      <td class="right"><div class="row end">{% if r.has_evidence %}<a class="btn sm ghost" href="/api/cases/{{ r.id }}/evidence.pdf" target="_blank" rel="noopener">PDF</a>{% endif %}
+        <a class="btn sm tonal" href="/api/cases/{{ r.id }}/export.zip"><svg class="icon sm"><use href="#i-download"/></svg>Pack</a></div></td></tr>
+  {% endfor %}</tbody>
+</table></div></section>
+{% endblock %}

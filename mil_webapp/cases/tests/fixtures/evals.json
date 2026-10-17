@@ -1,0 +1,98 @@
+{
+ "computed_at": "2026-10-17T06:59:12+00:00",
+ "caveat": "Synthetic data and classifier come from the same team: these numbers prove the pipeline, not real-world accuracy. Practitioner review (layer 4) has not happened yet.",
+ "diagnosis": {
+  "cases": 69,
+  "answered": 61,
+  "abstained": 8,
+  "accuracy_answered": 1.0,
+  "accuracy_all": 0.957,
+  "target": 0.8,
+  "misses": [
+   {
+    "utr": "477092490876",
+    "expected": "Remitter bank",
+    "got": "Beneficiary bank",
+    "confidence": 0.55
+   },
+   {
+    "utr": "428045066754",
+    "expected": "Remitter bank",
+    "got": "Beneficiary bank",
+    "confidence": 0.5
+   },
+   {
+    "utr": "469231563184",
+    "expected": "NPCI switch",
+    "got": "Beneficiary bank",
+    "confidence": 0.5
+   }
+  ]
+ },
+ "maths": {
+  "cases": 7,
+  "exact": 7,
+  "rate": 1.0,
+  "target": 1.0
+ },
+ "contract": {
+  "outputs": 48,
+  "valid": 48,
+  "rate": 1.0,
+  "target": 1.0,
+  "failures": []
+ },
+ "approval": {
+  "sent": 1,
+  "without_approval": 0,
+  "target": 0,
+  "violations": []
+ },
+ "clusters": {
+  "failed_transactions": 106,
+  "seeded_cluster_size": 41,
+  "flagged": 41,
+  "precision": 1.0,
+  "recall": 1.0
+ },
+ "officer": {
+  "upload_to_rights_seconds_median": 0.0,
+  "upload_to_rights_runs": 1,
+  "target_seconds": 120,
+  "replies_sent": 1,
+  "edited": 0,
+  "edit_rate": 0.0
+ },
+ "layers": [
+  {
+   "n": 1,
+   "name": "Contract tests (pytest)",
+   "status": "Run in CI",
+   "detail": "Typed outputs, deadline and compensation maths, approval guard. Run: python -m pytest -q"
+  },
+  {
+   "n": 2,
+   "name": "ADK evalsets",
+   "status": "Not run",
+   "detail": "Trajectory and response-match evals need a Gemini key and quota."
+  },
+  {
+   "n": 3,
+   "name": "Rubric and hallucination checks",
+   "status": "Planned",
+   "detail": "Vertex Gen AI Evaluation Service on drafted replies."
+  },
+  {
+   "n": 4,
+   "name": "Officer review",
+   "status": "Planned",
+   "detail": "Hero cases reviewed by 3 to 5 practitioners; edits and time counted."
+  },
+  {
+   "n": 5,
+   "name": "Outage detection",
+   "status": "Measured live",
+   "detail": "Precision and recall on the seeded cluster in ~5,000 synthetic transactions."
+  }
+ ]
+}

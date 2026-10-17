@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load mil static %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <div class="eyebrow">Grievance desk</div>
+    <h1>{{ title }}</h1>
+    <p>{{ subtitle }}.</p>
+  </div>
+  <a class="btn primary lg" href="{% url 'officer-new' %}" data-tour="new"><svg class="icon"><use href="#i-plus"/></svg>New complaint</a>
+</div>
+
+{% if kpis %}
+<section class="kpis" aria-label="Queue summary" data-tour="kpis">
+  <div class="kpi"><div class="ico"><svg class="icon"><use href="#i-inbox"/></svg></div><div class="v">{{ kpis.open_cases }}</div><div class="l">Open complaints</div></div>
+  <div class="kpi orange"><div class="ico"><svg class="icon"><use href="#i-pen"/></svg></div><div class="v">{{ kpis.awaiting_approval }}</div><div class="l">Waiting for your approval</div></div>
+  <div class="kpi red"><div class="ico"><svg class="icon"><use href="#i-clock"/></svg></div><div class="v">{{ kpis.breached_open }}</div><div class="l">Turnaround already breached</div></div>
+  <div class="kpi green"><div class="ico"><svg class="icon"><use href="#i-scale"/></svg></div><div class="v">{{ kpis.compensation_owed_inr|inr }}</div><div class="l">Compensation owed on open cases</div></div>
+  <div class="kpi indigo"><div class="ico"><svg class="icon"><use href="#i-shield"/></svg></div><div class="v">{{ kpis.referrals_flagged }}</div><div class="l">Internal Ombudsman referrals</div></div>
+</section>
+{% endif %}
+
+<section class="tablecard">
+  <div class="toolbar" role="search" data-tour="toolbar">
+    <div class="search"><svg class="icon"><use href="#i-search"/></svg>
+      <label class="sr-only" for="q">Search</label>
+      <input id="q" class="input" type="search" placeholder="Search case, customer or UTR" data-filter="q"></div>
+    <label class="sr-only" for="f-rail">Rail</label>
+    <select id="f-rail" data-filter="rail"><option value="">All rails</option>
+      <option value="UPI">UPI</option><option value="IMPS">IMPS</option><option value="CARD_ONLINE">Card online</option>
+      <option value="CARD_POS">Card PoS</option><option value="ATM">ATM</option></select>
+    <label class="sr-only" for="f-status">Status</label>
+    <select id="f-status" data-filter="status"><option value="">All statuses</option>
+      <option>Overdue</option><option>Needs your review</option><option>New</option><option>Agent working</option>
+      <option>Awaiting customer</option><option>Escalated</option><option>Resolved</option><option>Closed</option></select>
+    <label class="switch-label"><input type="checkbox" data-filter="referral"> Ombudsman referral</label>
+    <label class="switch-label"><input type="checkbox" data-filter="cluster"> Outage cluster</label>
+    <button type="button" class="btn ghost sm" data-filter-reset>Reset</button>
+  </div>
+  <div class="tablewrap" data-tour="table">
+    <table aria-describedby="count">
+      <thead><tr>
+        <th scope="col">Case</th><th scope="col">Complaint</th><th scope="col" class="right">Amount</th>
+        <th scope="col">Failure point</th><th scope="col">Statutory deadline</th><th scope="col">Status</th>
+        <th scope="col"><span class="sr-only">Action</span></th>
+      </tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr data-row data-href="{% url 'officer-case' r.id %}" data-rail="{{ r.rail }}" data-status="{{ r.status }}"
+            data-referral="{{ r.referral_required|yesno:'1,' }}" data-cluster="{{ r.cluster_id|default:'' }}"
+            data-text="{{ r.ref }} {{ r.customer_name }} {{ r.customer_ref }} {{ r.utr|default:'' }} {{ r.title }}"
+            {% if r.status == "Agent working" %}data-working{% endif %}>
+          <td><a class="caseid" href="{% url 'officer-case' r.id %}">{{ r.ref }}</a><span class="sub">{{ r.received|nicedate }}</span></td>
+          <td><span class="strong">{{ r.title }}</span><span class="sub">{{ r.customer_name }} · {{ r.customer_ref }}</span></td>
+          <td class="right num"><span class="strong">{{ r.amount_inr|inr }}</span><span class="sub">{{ r.rail|rail }}</span></td>
+          <td>{% if r.failure_point %}<span style="white-space:nowrap">{{ r.failure_point }}</span><span class="sub">{{ r.confidence|pct }} confidence</span>{% else %}<span class="faint">Not diagnosed</span>{% endif %}
+            {% if r.cluster_id or r.referral_required %}<div class="row mt-sm">{% if r.cluster_id %}<span class="chip bad tiny" title="{{ r.cluster_id }}">Outage cluster</span>{% endif %}
+            {% if r.referral_required %}<span class="chip escalated tiny">IO referral</span>{% endif %}</div>{% endif %}</td>
+          <td>{% if r.deadline %}<span class="strong" {% if r.breached %}style="color:var(--red)"{% endif %}>{{ r.relative }}</span>
+            <span class="sub">Target {{ r.deadline|nicedate }}{% if r.compensation_inr %} · {{ r.compensation_inr|inr }} owed{% endif %}</span>
+            {% else %}<span class="faint">{{ r.relative }}</span>{% endif %}</td>
+          <td><span class="chip {{ r.status|status_slug }}">{{ r.status }}</span>{% if r.step %}<span class="sub">{{ r.step }}</span>{% endif %}</td>
+          <td class="right"><a class="btn sm {% if r.status == 'New' or r.needs_approval %}tonal{% else %}outline{% endif %}" href="{% url 'officer-case' r.id %}">{% if r.status == "New" %}Investigate{% elif r.needs_approval %}Review{% else %}Open{% endif %}</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="muted" style="padding:40px;text-align:center">Nothing here. {% if kpis %}Open a <a href="{% url 'officer-new' %}">new complaint</a>.{% else %}You are all caught up.{% endif %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="tablefoot">
+    <span id="count" aria-live="polite"></span>
+    <span class="row"><span><kbd>J</kbd> <kbd>K</kbd> move · <kbd>Enter</kbd> open · <kbd>?</kbd> guide</span>
+      {% if kpis %}<button type="button" class="btn ghost sm" data-reset-demo>Reset demo queue</button>{% endif %}</span>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% asset 'js/queue.js' %}"></script>{% endblock %}

@@ -1,0 +1,6 @@
+[project]
+name = "mil-webapp"
+version = "0.1.0"
+description = "Money in Limbo: Django web app (UI) that talks to the ADK agent service"
+requires-python = ">=3.12"
+dependencies = ["django>=5.1,<6", "httpx>=0.28"]

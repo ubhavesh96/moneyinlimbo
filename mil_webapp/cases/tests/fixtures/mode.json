@@ -1,0 +1,5 @@
+{
+ "live_llm": false,
+ "model": "offline demo",
+ "degraded_reason": null
+}

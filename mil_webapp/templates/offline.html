@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Agent service offline{% endblock %}
+{% block content %}
+<section class="card center-card">
+  <div class="bigicon"><svg class="icon" style="width:28px;height:28px"><use href="#i-cpu"/></svg></div>
+  <h1 style="font-size:24px">The agent service is not switched on</h1>
+  <p class="muted mt-sm">The console reads every case from the ADK agent service (<span class="mono">mil_adk_agent</span>, port 8001). Start it, then reload.</p>
+  <pre class="snippet mt" style="padding:14px">cd mil_adk_agent
+.\.venv\Scripts\python.exe -m uvicorn mil_agent.main:app --host 127.0.0.1 --port 8001</pre>
+  <button class="btn primary lg mt" type="button" onclick="location.reload()">Reload</button>
+</section>
+{% endblock %}

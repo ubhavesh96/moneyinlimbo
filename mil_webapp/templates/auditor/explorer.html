@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load mil static %}
+{% block title %}Audit explorer{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Oversight</div>
+  <h1>Audit explorer</h1>
+  <p>Every complaint, its outcome and who approved it. Auditors cannot change cases.</p></div></div>
+<section class="tablecard">
+  <div class="toolbar" role="search">
+    <div class="search"><svg class="icon"><use href="#i-search"/></svg>
+      <label class="sr-only" for="q">Search</label>
+      <input id="q" class="input" type="search" placeholder="Search case, customer or UTR" data-filter="q"></div>
+    <label class="sr-only" for="f-rail">Rail</label>
+    <select id="f-rail" data-filter="rail"><option value="">All rails</option>
+      <option value="UPI">UPI</option><option value="IMPS">IMPS</option><option value="CARD">Card</option><option value="ATM">ATM</option></select>
+    <label class="switch-label"><input type="checkbox" data-filter="referral"> Ombudsman referral</label>
+    <button type="button" class="btn ghost sm" data-filter-reset>Reset</button>
+  </div>
+  <div class="tablewrap" data-tour="table"><table aria-describedby="count">
+    <thead><tr><th>Case</th><th>Complaint</th><th class="right">Disputed</th><th>Responsible party</th><th class="right">Compensation</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>{% for r in rows %}
+      <tr data-row data-href="{% url 'auditor-replay' r.id %}" data-rail="{{ r.rail }}" data-status="{{ r.status }}" data-referral="{{ r.referral_required|yesno:'1,' }}"
+          data-cluster="{{ r.cluster_id|default:'' }}" data-text="{{ r.ref }} {{ r.customer_name }} {{ r.customer_ref }} {{ r.utr|default:'' }} {{ r.title }}">
+        <td><a class="caseid" href="{% url 'auditor-replay' r.id %}">{{ r.ref }}</a><span class="sub">{{ r.received|nicedate }}</span></td>
+        <td><span class="strong">{{ r.title }}</span><span class="sub">{{ r.customer_ref }}</span></td>
+        <td class="right num">{{ r.amount_inr|inr }}<span class="sub">{{ r.rail|rail }}</span></td>
+        <td>{{ r.failure_point|default:"—" }}{% if r.confidence %}<span class="sub">{{ r.confidence|pct }} confidence</span>{% endif %}</td>
+        <td class="right num">{% if r.compensation_inr is not None %}{{ r.compensation_inr|inr }}<span class="sub">{{ r.relative }}</span>{% else %}—{% endif %}</td>
+        <td><span class="chip {{ r.status|status_slug }}">{{ r.status }}</span>{% if r.needs_approval %}<span class="sub">Awaiting officer approval</span>{% endif %}</td>
+        <td class="right"><a class="btn sm tonal" href="{% url 'auditor-replay' r.id %}">Replay</a></td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="tablefoot"><span id="count" aria-live="polite"></span><span>Read-only · <kbd>J</kbd> <kbd>K</kbd> <kbd>Enter</kbd></span></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% asset 'js/queue.js' %}"></script>{% endblock %}

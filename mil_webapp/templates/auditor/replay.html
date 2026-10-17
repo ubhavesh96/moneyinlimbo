@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}Replay {{ case.ref }}{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="crumbs"><a href="{% url 'auditor-explorer' %}"><svg class="icon sm"><use href="#i-back"/></svg>Audit explorer</a><span>/</span><span class="caseid">{{ case.ref }}</span>
+    <span class="chip {{ case.status|status_slug }}">{{ case.status }}</span></div>
+  <h1 class="mt-sm">Case replay</h1>
+  <p>{{ case.title }} · {{ case.customer_ref }} · {{ case.amount_inr|inr }}{% if case.utr %} · <span class="mono">{{ case.utr }}</span>{% endif %}<br>
+    <span class="tiny">Trace ID <span class="mono">{{ case.trace_id }}</span> · read-only reconstruction from the case file and its audit trail</span></p></div>
+  <div class="row" data-tour="export">
+    {% if case.has_evidence %}<a class="btn outline" href="/api/cases/{{ case.id }}/evidence.pdf" target="_blank" rel="noopener">Evidence PDF</a>{% endif %}
+    <a class="btn primary" href="/api/cases/{{ case.id }}/export.zip"><svg class="icon sm"><use href="#i-download"/></svg>Export evidence pack</a></div>
+</div>
+
+<div class="grid-2 mb">
+  <section class="card" data-tour="states"><div class="card-h"><h2>State history</h2><span class="tiny faint">Only the Case Tracker moves state</span></div>
+    <div class="card-b"><ol class="tl">
+      {% for m in moves %}<li class="bank"><div class="when"><span>{{ m.at|nicetime }}</span>{% if m.via != "adk" %}<span class="tag">{{ m.via }}</span>{% endif %}</div>
+        <p>{{ m.inputs.from|humanize }} → {{ m.inputs.to|humanize }}</p><span class="tiny faint">{{ m.outputs.reason }}</span></li>
+      {% empty %}<li><p class="muted">Still at intake.</p></li>{% endfor %}
+    </ol></div></section>
+  <section class="card" data-tour="decisions"><div class="card-h"><h2>Human decisions</h2><span class="tiny faint">{{ case.decisions|length }} logged</span></div>
+    <div class="card-b"><ol class="tl">
+      {% for d in case.decisions %}<li class="officer"><div class="when"><span>{{ d.at|nicetime }}</span><span class="tag">{{ d.actor }}</span></div>
+        <p>{{ d.action|humanize|capfirst }}{% if d.kind %} · {{ d.kind|humanize }}{% endif %}{% if d.compensation_inr is not None %} · {{ d.compensation_inr|inr }}{% endif %}</p>
+        {% if d.reason %}<span class="tiny faint">{{ d.reason }}</span>{% endif %}</li>
+      {% empty %}<li><p class="muted">No officer decision yet. Nothing has been sent.</p></li>{% endfor %}
+    </ol></div></section>
+</div>
+
+<div class="stack lg" data-tour="diff">
+{% for kind, dr in case.drafts.items %}
+<section class="card">
+  <div class="card-h"><h2>{{ dr.title }}: AI draft vs {% if kind in case.sent %}text sent{% else %}current text{% endif %}</h2>
+    {% if dr.edited_by_officer %}<span class="chip warn tiny">Edited by officer</span>{% else %}<span class="chip tiny plain">Unedited</span>{% endif %}</div>
+  <div class="card-b stack"><div class="diffview">{% worddiff dr.original_text dr.text %}</div>
+    {% if kind in case.sent %}{% with s=case.sent|get:kind %}<p class="tiny faint">Sent {{ s.date|nicedate }} to {{ s.to }} · <span class="mono">{{ s.reference }}</span> · approved by {{ s.by }}</p>{% endwith %}{% endif %}
+  </div>
+</section>
+{% endfor %}
+
+<section class="card" data-tour="trace">
+  <div class="card-h"><h2>Step-by-step trace</h2><span class="tiny faint">{{ steps|length }} tool calls and actions</span></div>
+  <div class="card-b"><ol class="steps">
+    {% for a in steps %}
+      <li><div class="h"><span class="row"><span class="strong">{{ a.agent|humanize|capfirst }}</span><span class="tag">{{ a.tool }}</span>{% if a.via != "adk" %}<span class="chip tiny plain">{{ a.via }}</span>{% endif %}
+          {% if a.outputs|get:"_contract" %}<span class="chip ok tiny">{{ a.outputs|get:"_contract" }}</span>{% endif %}</span>
+        <span class="tiny faint">{{ a.at|nicetime }}</span></div>
+        <p class="small muted mt-sm">{{ a.summary }}</p>
+        <div class="row mt-sm" style="gap:16px"><details><summary>Tool inputs</summary><pre>{{ a.inputs|prettyjson }}</pre></details>
+          <details><summary>Tool outputs</summary><pre>{{ a.outputs|prettyjson }}</pre></details></div></li>
+    {% endfor %}
+  </ol></div>
+</section>
+</div>
+{% endblock %}

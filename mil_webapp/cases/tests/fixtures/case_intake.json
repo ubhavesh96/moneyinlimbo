@@ -1,0 +1,98 @@
+{
+ "id": "a2bdafd4",
+ "ref": "MIL-24005",
+ "trace_id": "a6a6717e80234b33921d0eefd1afd095",
+ "title": "UPI: debited, beneficiary not credited",
+ "rail": "UNKNOWN",
+ "customer_ref": "CUST-52004",
+ "customer_name": "Sourav Das",
+ "channel": "Branch / app complaint",
+ "received": "2026-10-14",
+ "created": "2026-10-17",
+ "today": "2026-10-17",
+ "state": "intake",
+ "running": false,
+ "step": null,
+ "error": null,
+ "assigned_officer": "Priya Sharma",
+ "bank": "",
+ "beneficiary": "",
+ "amount_inr": null,
+ "utr": null,
+ "txn_date": null,
+ "documents": [
+  {
+   "id": "doc-1",
+   "name": "complaint.txt",
+   "kind": "complaint",
+   "origin": "customer",
+   "text": "Complaint received: 2026-10-14\nChannel: Branch / mobile app (synthetic)\nCustomer: Sourav Das (CUST-52004)\n\nOn 2026-10-12 I sent Rs 350 by UPI to S Das at Coastal Co-operative Bank. The money left my account but they say they never received it. Reference 634500000103. Please return my money.\n"
+  },
+  {
+   "id": "doc-2",
+   "name": "bank_statement.csv",
+   "kind": "statement",
+   "origin": "customer",
+   "text": "# Bank: Sunrise Bank\n# Account: XXXX4821 (synthetic)\nDate,Narration,Debit,Credit,Balance\n2026-10-09,NEFT/SALARY/ACME LTD,,52000,39200\n2026-10-09,UPI/P2M/411122233344/GROCER,640,,38560\n2026-10-12,UPI/P2P/634500000103/S DAS/COASTAL CO-OPERATIVE BANK,350,,38210\n"
+  },
+  {
+   "id": "doc-3",
+   "name": "bank_sms.txt",
+   "kind": "sms",
+   "origin": "customer",
+   "text": "2026-10-12 19:31 Sunrise Bank: Rs 350.00 debited from A/c XX4821 via UPI to S DAS. UTR 634500000103. If not you, call 1800-000-000.\n"
+  }
+ ],
+ "timeline": [],
+ "diagnosis": null,
+ "rights": null,
+ "referral": null,
+ "drafts": {},
+ "approval": null,
+ "sent": {},
+ "evidence_sha256": null,
+ "awaiting_documents": [],
+ "followups": [],
+ "audit": [
+  {
+   "at": "2026-10-17T06:59:11+00:00",
+   "trace_id": "a6a6717e80234b33921d0eefd1afd095",
+   "agent": "grievance_desk",
+   "tool": "open_case",
+   "summary": "Case opened with 3 customer document(s).",
+   "inputs": {
+    "customer_ref": "CUST-52004"
+   },
+   "outputs": {
+    "documents": [
+     "complaint.txt",
+     "bank_statement.csv",
+     "bank_sms.txt"
+    ]
+   },
+   "via": "adk"
+  }
+ ],
+ "decisions": [],
+ "chat": [],
+ "analysis_started_at": null,
+ "rights_ready_at": null,
+ "status": "New",
+ "failure_point": null,
+ "confidence": null,
+ "cluster_id": null,
+ "compensation_inr": null,
+ "days_overdue": null,
+ "deadline": null,
+ "relative": "Not computed yet",
+ "breached": false,
+ "referral_required": false,
+ "needs_approval": false,
+ "has_evidence": false,
+ "route": {
+  "next_agent": "timeline_reconstructor",
+  "reason": "Documents are on file; build the timeline.",
+  "blocked_on_officer": false
+ },
+ "state_help": "Officer opened the case and uploaded documents"
+}

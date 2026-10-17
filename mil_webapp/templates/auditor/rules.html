@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}Rule library{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Oversight</div>
+  <h1>Rule library</h1>
+  <p>The rules the engine applies. Deadlines and compensation come from these rows through code, never from the model. Last reviewed {{ lib.last_reviewed|nicedate }}.</p></div></div>
+<div class="notice warn mb"><svg class="icon"><use href="#i-alert"/></svg><span>{{ lib.disclaimer }}</span></div>
+<section class="tablecard" data-tour="table"><div class="tablewrap"><table>
+  <thead><tr><th>Rule</th><th>Scenario</th><th>Turnaround</th><th class="right">Compensation</th><th>Source</th><th>Status</th></tr></thead>
+  <tbody>{% for r in lib.rules %}
+    <tr><td><span class="caseid">{{ r.id }}</span></td>
+      <td><span class="strong">{{ r.title }}</span><span class="sub">{{ r.text }}</span></td>
+      <td>{% if r.tat_days %}T+{{ r.tat_days }}{% else %}—{% endif %}<span class="sub">{{ r.tat_basis }}</span></td>
+      <td class="right num">{% if r.compensation_per_day %}{{ r.compensation_per_day|inr }} / day{% else %}—{% endif %}</td>
+      <td class="small"><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.source }}</a></td>
+      <td>{% if r.verified %}<span class="chip ok">Verified</span>{% else %}<span class="chip warn">Verify</span>{% endif %}</td></tr>
+  {% endfor %}</tbody>
+</table></div></section>
+<p class="tiny faint mt">The customer may approach the RBI Ombudsman {{ lib.rbi_wait_days }} days after the complaint reached the bank, and must file within {{ lib.rbi_file_within_days }} days after that (project file values).</p>
+{% endblock %}

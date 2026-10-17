@@ -1,0 +1,784 @@
+{
+ "id": "c8701f90",
+ "ref": "MIL-24001",
+ "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+ "title": "UPI: debited, beneficiary not credited",
+ "rail": "UPI",
+ "customer_ref": "CUST-88213",
+ "customer_name": "Asha Verma",
+ "channel": "Branch / app complaint",
+ "received": "2026-10-11",
+ "created": "2026-10-17",
+ "today": "2026-10-17",
+ "state": "complaint_ready",
+ "running": false,
+ "step": null,
+ "error": null,
+ "assigned_officer": "Priya Sharma",
+ "bank": "Sunrise Bank",
+ "beneficiary": "Northwind Bank",
+ "amount_inr": 4250.0,
+ "utr": "612345678901",
+ "txn_date": "2026-10-10",
+ "documents": [
+  {
+   "id": "doc-1",
+   "name": "complaint.txt",
+   "kind": "complaint",
+   "origin": "customer",
+   "text": "Complaint received: 2026-10-11\nChannel: Branch / mobile app (synthetic)\nCustomer: Asha Verma (CUST-88213)\n\nOn 2026-10-10 I sent Rs 4,250 by UPI to R Mehta at Northwind Bank. The money left my account but they say they never received it. Reference 612345678901. Please return my money.\n"
+  },
+  {
+   "id": "doc-2",
+   "name": "bank_statement.csv",
+   "kind": "statement",
+   "origin": "customer",
+   "text": "# Bank: Sunrise Bank\n# Account: XXXX4821 (synthetic)\nDate,Narration,Debit,Credit,Balance\n2026-10-07,NEFT/SALARY/ACME LTD,,52000,43100\n2026-10-07,UPI/P2M/411122233344/GROCER,640,,42460\n2026-10-10,UPI/P2P/612345678901/R MEHTA/NORTHWIND BANK,4250,,38210\n"
+  },
+  {
+   "id": "doc-3",
+   "name": "bank_sms.txt",
+   "kind": "sms",
+   "origin": "customer",
+   "text": "2026-10-10 10:42 Sunrise Bank: Rs 4,250.00 debited from A/c XX4821 via UPI to R MEHTA. UTR 612345678901. If not you, call 1800-000-000.\n"
+  },
+  {
+   "id": "doc-4",
+   "name": "remitter_cbs_612345678901.log",
+   "kind": "bank_log",
+   "origin": "bank_connector",
+   "text": "# Source: Remitter CBS ledger, Sunrise Bank (synthetic extract)\n2026-10-10 10:42:01 DEBIT POSTED A/c XX4821 AMT=4250.00 REF=612345678901\n2026-10-10 10:42:02 AUTO-REVERSAL STATUS: REVERSAL NOT EXECUTED REF=612345678901\n"
+  },
+  {
+   "id": "doc-5",
+   "name": "npci_switch_612345678901.log",
+   "kind": "bank_log",
+   "origin": "bank_connector",
+   "text": "# Source: NPCI switch extract (synthetic)\n2026-10-10 10:42:00 REQPAY UTR=612345678901 AMT=4250.00 PAYER=SUNR0001 BENEFICIARY=Northwind Bank PAYEE_TYPE=PERSON\n2026-10-10 10:42:01 DEBIT CONFIRMED by remitter Sunrise Bank UTR=612345678901\n2026-10-10 10:42:31 CREDIT_REQUEST to Northwind Bank RESULT=TIMEOUT (BENE_CBS_TIMEOUT) UTR=612345678901\n2026-10-10 10:42:32 TXN STATUS=DEEMED_PENDING UTR=612345678901\n"
+  },
+  {
+   "id": "doc-6",
+   "name": "beneficiary_status_612345678901.log",
+   "kind": "bank_log",
+   "origin": "bank_connector",
+   "text": "# Source: Beneficiary CBS status check via switch, Northwind Bank (synthetic)\n2026-10-10 11:42:00 STATUS CHECK UTR=612345678901: CREDIT NOT POSTED to beneficiary account\n"
+  }
+ ],
+ "timeline": [
+  {
+   "id": "ev-1",
+   "date": "2026-10-10",
+   "time": null,
+   "source": "Bank statement",
+   "kind": "debit",
+   "text": "Statement shows a debit of Rs 4,250 (UPI/P2P/612345678901/R MEHTA/NORTHWIND BANK).",
+   "amount_inr": 4250.0,
+   "ref": "612345678901",
+   "doc_id": "doc-2",
+   "snippet": "2026-10-10,UPI/P2P/612345678901/R MEHTA/NORTHWIND BANK,4250,38210"
+  },
+  {
+   "id": "ev-2",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "SMS",
+   "kind": "debit_sms",
+   "text": "Bank SMS confirms the debit to the customer.",
+   "amount_inr": 4250.0,
+   "ref": "612345678901",
+   "doc_id": "doc-3",
+   "snippet": "2026-10-10 10:42 Sunrise Bank: Rs 4,250.00 debited from A/c XX4821 via UPI to R MEHTA. UTR 612345678901."
+  },
+  {
+   "id": "ev-3",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "Remitter CBS",
+   "kind": "debit_posted",
+   "text": "Remitter CBS: customer's account debited.",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-4",
+   "snippet": "2026-10-10 10:42:01 DEBIT POSTED A/c XX4821 AMT=4250.00 REF=612345678901"
+  },
+  {
+   "id": "ev-4",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "Remitter CBS",
+   "kind": "reversal_missing",
+   "text": "Remitter CBS: no reversal has been posted.",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-4",
+   "snippet": "2026-10-10 10:42:02 AUTO-REVERSAL STATUS: REVERSAL NOT EXECUTED REF=612345678901"
+  },
+  {
+   "id": "ev-5",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "NPCI switch",
+   "kind": "request",
+   "text": "NPCI switch: payment request received.",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-5",
+   "snippet": "2026-10-10 10:42:00 REQPAY UTR=612345678901 AMT=4250.00 PAYER=SUNR0001 BENEFICIARY=Northwind Bank PAYEE_TYPE=PERSON"
+  },
+  {
+   "id": "ev-6",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "NPCI switch",
+   "kind": "debit_posted",
+   "text": "NPCI switch: customer's account debited.",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-5",
+   "snippet": "2026-10-10 10:42:01 DEBIT CONFIRMED by remitter Sunrise Bank UTR=612345678901"
+  },
+  {
+   "id": "ev-7",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "NPCI switch",
+   "kind": "credit_failed",
+   "text": "NPCI switch: credit to the beneficiary failed (BENE_CBS_TIMEOUT).",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-5",
+   "snippet": "2026-10-10 10:42:31 CREDIT_REQUEST to Northwind Bank RESULT=TIMEOUT (BENE_CBS_TIMEOUT) UTR=612345678901"
+  },
+  {
+   "id": "ev-8",
+   "date": "2026-10-10",
+   "time": "10:42",
+   "source": "NPCI switch",
+   "kind": "log",
+   "text": "NPCI switch: TXN STATUS=DEEMED_PENDING UTR=612345678901",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-5",
+   "snippet": "2026-10-10 10:42:32 TXN STATUS=DEEMED_PENDING UTR=612345678901"
+  },
+  {
+   "id": "ev-9",
+   "date": "2026-10-10",
+   "time": "11:42",
+   "source": "Beneficiary CBS",
+   "kind": "credit_failed",
+   "text": "Beneficiary CBS: credit to the beneficiary failed.",
+   "amount_inr": null,
+   "ref": "612345678901",
+   "doc_id": "doc-6",
+   "snippet": "2026-10-10 11:42:00 STATUS CHECK UTR=612345678901: CREDIT NOT POSTED to beneficiary account"
+  },
+  {
+   "id": "ev-10",
+   "date": "2026-10-11",
+   "time": null,
+   "source": "Complaint",
+   "kind": "complaint_received",
+   "text": "Customer complaint received by the grievance desk.",
+   "amount_inr": 4250.0,
+   "ref": "612345678901",
+   "doc_id": "doc-1",
+   "snippet": "On 2026-10-10 I sent Rs 4,250 by UPI to R Mehta at Northwind Bank. The money left my account but they say they never received it. Reference 612345678901. Please return my money."
+  }
+ ],
+ "diagnosis": {
+  "failure_type": "upi_transfer_not_credited",
+  "failure_point": "Beneficiary bank",
+  "confidence": 0.92,
+  "summary": "The debit went through, but Northwind Bank never posted the credit and no reversal followed.",
+  "next_actor": "Sunrise Bank payments operations: credit Rs 4,250 plus any TAT compensation, then claim from Northwind Bank",
+  "reasons": [
+   "[ev-1] Bank statement, 2026-10-10: customer's statement shows the debit of Rs 4,250.",
+   "[ev-3] Remitter CBS, 2026-10-10 10:42: our ledger confirms the debit.",
+   "[ev-2] SMS, 2026-10-10 10:42: debit SMS sent to the customer.",
+   "[ev-7] NPCI switch, 2026-10-10 10:42: beneficiary bank's core banking did not respond to the credit request (BENE_CBS_TIMEOUT).",
+   "[ev-4] Remitter CBS, 2026-10-10 10:42: no automatic reversal has been posted."
+  ],
+  "missing_documents": [],
+  "what_would_raise_confidence": null,
+  "outage": null,
+  "cluster_id": null,
+  "override": null,
+  "effective_point": "Beneficiary bank"
+ },
+ "rights": {
+  "rule_id": "RBI-TAT-UPI-01",
+  "rule_title": "UPI transfer: debited, beneficiary not credited",
+  "rule_source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+  "rule_url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+  "rule_verified": true,
+  "tat_days": 1,
+  "tat_basis": "calendar days after the transaction day (T+1)",
+  "txn_date": "2026-10-10",
+  "deadline": "2026-10-11",
+  "as_of": "2026-10-17",
+  "days_overdue": 6,
+  "breached": true,
+  "compensation_per_day": 100,
+  "compensation_inr": 600,
+  "arithmetic": "6 days x Rs 100 = Rs 600",
+  "reversal_done": false,
+  "compensation_paid_inr": 0,
+  "principal_to_credit_inr": 4250.0,
+  "total_to_credit_inr": 4850.0
+ },
+ "referral": {
+  "proposed_outcome": "uphold",
+  "internal_ombudsman_required": false,
+  "reason": "The complaint is upheld in full (amount and compensation), so no Internal Ombudsman referral is needed.",
+  "rbi_eligible_from": "2026-11-10",
+  "rbi_file_by": "2027-02-08",
+  "rule_ids": [
+   "RBI-IO-REFERRAL-01",
+   "RBI-IOS-2026-01"
+  ]
+ },
+ "drafts": {
+  "customer_reply": {
+   "kind": "customer_reply",
+   "recipient": "customer",
+   "title": "Reply to the customer",
+   "to": "Asha Verma (CUST-88213)",
+   "text": "To: Asha Verma (CUST-88213)\nFrom: Grievance Redressal Cell, Sunrise Bank\nSubject: Your complaint MIL-24001: Rs 4,250 on 10 Oct 2026 (UTR 612345678901)\n\nDear Asha Verma,\n\nThank you for your complaint received on 11 Oct 2026. We have investigated it using your documents and our own payment records.\n\nWhat happened: Rs 4,250 was debited from your account on 10 Oct 2026 [1][2]. However, the payee's bank, Northwind Bank, did not complete the credit [3] and no automatic reversal followed [2].\n\nWhat we will do: Under the RBI rules for failed transactions, this amount had to be returned by 11 Oct 2026 (T+1) [4]. We are crediting Rs 4,250 to your account, together with compensation of Rs 600 for 6 days of delay (6 days x Rs 100 = Rs 600) [4]. Total: Rs 4,850.\n\nIf you are not satisfied with this reply, you may complain to the RBI Ombudsman at cms.rbi.org.in, free of charge, from 10 Nov 2026 if the matter is still unresolved, and no later than 08 Feb 2027 [5]. Helpline 14448.\n\nYours sincerely,\nPriya Sharma\nGrievance Redressal Officer, Sunrise Bank",
+   "original_text": "To: Asha Verma (CUST-88213)\nFrom: Grievance Redressal Cell, Sunrise Bank\nSubject: Your complaint MIL-24001: Rs 4,250 on 10 Oct 2026 (UTR 612345678901)\n\nDear Asha Verma,\n\nThank you for your complaint received on 11 Oct 2026. We have investigated it using your documents and our own payment records.\n\nWhat happened: Rs 4,250 was debited from your account on 10 Oct 2026 [1][2]. However, the payee's bank, Northwind Bank, did not complete the credit [3] and no automatic reversal followed [2].\n\nWhat we will do: Under the RBI rules for failed transactions, this amount had to be returned by 11 Oct 2026 (T+1) [4]. We are crediting Rs 4,250 to your account, together with compensation of Rs 600 for 6 days of delay (6 days x Rs 100 = Rs 600) [4]. Total: Rs 4,850.\n\nIf you are not satisfied with this reply, you may complain to the RBI Ombudsman at cms.rbi.org.in, free of charge, from 10 Nov 2026 if the matter is still unresolved, and no later than 08 Feb 2027 [5]. Helpline 14448.\n\nYours sincerely,\nPriya Sharma\nGrievance Redressal Officer, Sunrise Bank",
+   "citations": [
+    {
+     "n": 1,
+     "label": "Bank statement, 10 Oct 2026",
+     "source": "bank_statement.csv",
+     "ref": "doc-2",
+     "url": null
+    },
+    {
+     "n": 2,
+     "label": "Remitter CBS, 10 Oct 2026 10:42",
+     "source": "remitter_cbs_612345678901.log",
+     "ref": "doc-4",
+     "url": null
+    },
+    {
+     "n": 3,
+     "label": "NPCI switch, 10 Oct 2026 10:42",
+     "source": "npci_switch_612345678901.log",
+     "ref": "doc-5",
+     "url": null
+    },
+    {
+     "n": 4,
+     "label": "RBI-TAT-UPI-01: UPI transfer: debited, beneficiary not credited",
+     "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+     "ref": "RBI-TAT-UPI-01",
+     "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693"
+    },
+    {
+     "n": 5,
+     "label": "RBI-IOS-2026-01: Integrated Ombudsman Scheme 2026: when the customer can go to the RBI",
+     "source": "Integrated Ombudsman Scheme 2026, salient features (bank-hosted summary, not RBI's text)",
+     "ref": "RBI-IOS-2026-01",
+     "url": "https://protium.co.in/wp-content/uploads/2026/06/Salient-Features.pdf"
+    }
+   ],
+   "edited_by_officer": false,
+   "locked_reason": null
+  }
+ },
+ "approval": {
+  "kind": "customer_reply",
+  "title": "Approve and send the reply to the customer",
+  "status": "pending",
+  "checklist": {
+   "timeline": false,
+   "amounts": false,
+   "text": false
+  },
+  "approved_by": null,
+  "approved_at": null,
+  "rejection_reason": null
+ },
+ "sent": {},
+ "evidence_sha256": "8762de0962e5c09d795f62379bc7b210d64c7181df4d7dcaedb57e4a01fd2ee0",
+ "awaiting_documents": [],
+ "followups": [],
+ "audit": [
+  {
+   "at": "2026-10-17T06:59:11+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "grievance_desk",
+   "tool": "open_case",
+   "summary": "Case opened with 3 customer document(s).",
+   "inputs": {
+    "customer_ref": "CUST-88213"
+   },
+   "outputs": {
+    "documents": [
+     "complaint.txt",
+     "bank_statement.csv",
+     "bank_sms.txt"
+    ]
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "timeline_reconstructor",
+   "tool": "parse_document",
+   "summary": "Read 3 customer document(s): 5 event(s), reference 612345678901.",
+   "inputs": {
+    "case_id": "c8701f90",
+    "document_name": ""
+   },
+   "outputs": {
+    "events_per_document": {
+     "complaint.txt": 1,
+     "bank_statement.csv": 3,
+     "bank_sms.txt": 1
+    },
+    "utr": "612345678901"
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "case_tracker",
+   "tool": "advance_state",
+   "summary": "intake -> reconstructed: 10 events from 3 customer document(s) and 3 bank record(s)",
+   "inputs": {
+    "from": "intake",
+    "to": "reconstructed"
+   },
+   "outputs": {
+    "reason": "10 events from 3 customer document(s) and 3 bank record(s)"
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "timeline_reconstructor",
+   "tool": "normalize_events",
+   "summary": "Timeline of 10 events for Rs 4,250 (UPI), 3 bank record(s) pulled via Mock bank API (synthetic).",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "_contract": "Timeline: valid",
+    "events": [
+     {
+      "id": "ev-1",
+      "date": "2026-10-10",
+      "time": null,
+      "source": "Bank statement",
+      "kind": "debit",
+      "text": "Statement shows a debit of Rs 4,250 (UPI/P2P/612345678901/R MEHTA/NORTHWIND BANK).",
+      "amount_inr": 4250.0,
+      "ref": "612345678901",
+      "doc_id": "doc-2",
+      "snippet": "2026-10-10,UPI/P2P/612345678901/R MEHTA/NORTHWIND BANK,4250,38210"
+     },
+     {
+      "id": "ev-2",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "SMS",
+      "kind": "debit_sms",
+      "text": "Bank SMS confirms the debit to the customer.",
+      "amount_inr": 4250.0,
+      "ref": "612345678901",
+      "doc_id": "doc-3",
+      "snippet": "2026-10-10 10:42 Sunrise Bank: Rs 4,250.00 debited from A/c XX4821 via UPI to R MEHTA. UTR 612345678901."
+     },
+     {
+      "id": "ev-3",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "Remitter CBS",
+      "kind": "debit_posted",
+      "text": "Remitter CBS: customer's account debited.",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-4",
+      "snippet": "2026-10-10 10:42:01 DEBIT POSTED A/c XX4821 AMT=4250.00 REF=612345678901"
+     },
+     {
+      "id": "ev-4",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "Remitter CBS",
+      "kind": "reversal_missing",
+      "text": "Remitter CBS: no reversal has been posted.",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-4",
+      "snippet": "2026-10-10 10:42:02 AUTO-REVERSAL STATUS: REVERSAL NOT EXECUTED REF=612345678901"
+     },
+     {
+      "id": "ev-5",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "NPCI switch",
+      "kind": "request",
+      "text": "NPCI switch: payment request received.",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-5",
+      "snippet": "2026-10-10 10:42:00 REQPAY UTR=612345678901 AMT=4250.00 PAYER=SUNR0001 BENEFICIARY=Northwind Bank PAYEE_TYPE=PERSON"
+     },
+     {
+      "id": "ev-6",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "NPCI switch",
+      "kind": "debit_posted",
+      "text": "NPCI switch: customer's account debited.",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-5",
+      "snippet": "2026-10-10 10:42:01 DEBIT CONFIRMED by remitter Sunrise Bank UTR=612345678901"
+     },
+     {
+      "id": "ev-7",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "NPCI switch",
+      "kind": "credit_failed",
+      "text": "NPCI switch: credit to the beneficiary failed (BENE_CBS_TIMEOUT).",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-5",
+      "snippet": "2026-10-10 10:42:31 CREDIT_REQUEST to Northwind Bank RESULT=TIMEOUT (BENE_CBS_TIMEOUT) UTR=612345678901"
+     },
+     {
+      "id": "ev-8",
+      "date": "2026-10-10",
+      "time": "10:42",
+      "source": "NPCI switch",
+      "kind": "log",
+      "text": "NPCI switch: TXN STATUS=DEEMED_PENDING UTR=612345678901",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-5",
+      "snippet": "2026-10-10 10:42:32 TXN STATUS=DEEMED_PENDING UTR=612345678901"
+     },
+     {
+      "id": "ev-9",
+      "date": "2026-10-10",
+      "time": "11:42",
+      "source": "Beneficiary CBS",
+      "kind": "credit_failed",
+      "text": "Beneficiary CBS: credit to the beneficiary failed.",
+      "amount_inr": null,
+      "ref": "612345678901",
+      "doc_id": "doc-6",
+      "snippet": "2026-10-10 11:42:00 STATUS CHECK UTR=612345678901: CREDIT NOT POSTED to beneficiary account"
+     },
+     {
+      "id": "ev-10",
+      "date": "2026-10-11",
+      "time": null,
+      "source": "Complaint",
+      "kind": "complaint_received",
+      "text": "Customer complaint received by the grievance desk.",
+      "amount_inr": 4250.0,
+      "ref": "612345678901",
+      "doc_id": "doc-1",
+      "snippet": "On 2026-10-10 I sent Rs 4,250 by UPI to R Mehta at Northwind Bank. The money left my account but they say they never received it. Reference 612345678901. Please return my money."
+     }
+    ],
+    "utr": "612345678901",
+    "amount_inr": 4250.0,
+    "rail": "UPI",
+    "txn_date": "2026-10-10",
+    "beneficiary": "Northwind Bank",
+    "customer_documents": 3,
+    "bank_records": 3
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "failure_diagnoser",
+   "tool": "lookup_known_outages",
+   "summary": "No declared incident or outage cluster around this transaction.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "outage": null,
+    "cluster": null
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "case_tracker",
+   "tool": "advance_state",
+   "summary": "reconstructed -> diagnosed: Beneficiary bank (92%)",
+   "inputs": {
+    "from": "reconstructed",
+    "to": "diagnosed"
+   },
+   "outputs": {
+    "reason": "Beneficiary bank (92%)"
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "failure_diagnoser",
+   "tool": "predict_failure_point",
+   "summary": "Beneficiary bank, confidence 92%: The debit went through, but Northwind Bank never posted the credit and no reversal followed.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "_contract": "FailureDiagnosis: valid",
+    "failure_type": "upi_transfer_not_credited",
+    "failure_point": "Beneficiary bank",
+    "confidence": 0.92,
+    "summary": "The debit went through, but Northwind Bank never posted the credit and no reversal followed.",
+    "next_actor": "Sunrise Bank payments operations: credit Rs 4,250 plus any TAT compensation, then claim from Northwind Bank",
+    "reasons": [
+     "[ev-1] Bank statement, 2026-10-10: customer's statement shows the debit of Rs 4,250.",
+     "[ev-3] Remitter CBS, 2026-10-10 10:42: our ledger confirms the debit.",
+     "[ev-2] SMS, 2026-10-10 10:42: debit SMS sent to the customer.",
+     "[ev-7] NPCI switch, 2026-10-10 10:42: beneficiary bank's core banking did not respond to the credit request (BENE_CBS_TIMEOUT).",
+     "[ev-4] Remitter CBS, 2026-10-10 10:42: no automatic reversal has been posted."
+    ],
+    "missing_documents": [],
+    "what_would_raise_confidence": null,
+    "outage": null,
+    "cluster_id": null,
+    "override": null,
+    "needs_documents": false
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "policy_rights",
+   "tool": "compute_deadline",
+   "summary": "RBI-TAT-UPI-01: T=2026-10-10, T+1 = 2026-10-11; breached by 6 day(s).",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "rule_id": "RBI-TAT-UPI-01",
+    "deadline": "2026-10-11",
+    "days_overdue": 6,
+    "breached": true,
+    "rule_verified": true
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "case_tracker",
+   "tool": "advance_state",
+   "summary": "diagnosed -> rights_computed: compensation Rs 600",
+   "inputs": {
+    "from": "diagnosed",
+    "to": "rights_computed"
+   },
+   "outputs": {
+    "reason": "compensation Rs 600"
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "policy_rights",
+   "tool": "compute_compensation",
+   "summary": "Compensation 6 days x Rs 100 = Rs 600. Total to credit Rs 4,850.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "_contract": "RightsCard: valid",
+    "rule_id": "RBI-TAT-UPI-01",
+    "rule_title": "UPI transfer: debited, beneficiary not credited",
+    "rule_source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+    "rule_url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+    "rule_verified": true,
+    "tat_days": 1,
+    "tat_basis": "calendar days after the transaction day (T+1)",
+    "txn_date": "2026-10-10",
+    "deadline": "2026-10-11",
+    "as_of": "2026-10-17",
+    "days_overdue": 6,
+    "breached": true,
+    "compensation_per_day": 100,
+    "compensation_inr": 600,
+    "arithmetic": "6 days x Rs 100 = Rs 600",
+    "reversal_done": false,
+    "compensation_paid_inr": 0,
+    "principal_to_credit_inr": 4250.0,
+    "total_to_credit_inr": 4850.0
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "escalation",
+   "tool": "select_ombudsman_route",
+   "summary": "No referral needed. RBI Ombudsman open to the customer from 2026-11-10.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "_contract": "ReferralCheck: valid",
+    "proposed_outcome": "uphold",
+    "internal_ombudsman_required": false,
+    "reason": "The complaint is upheld in full (amount and compensation), so no Internal Ombudsman referral is needed.",
+    "rbi_eligible_from": "2026-11-10",
+    "rbi_file_by": "2027-02-08",
+    "rule_ids": [
+     "RBI-IO-REFERRAL-01",
+     "RBI-IOS-2026-01"
+    ],
+    "escalation_level": null
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "evidence_complaint",
+   "tool": "choose_recipient",
+   "summary": "The complaint is upheld; the reply goes straight to the customer.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "recipient": "customer",
+    "sequence": [
+     "customer"
+    ]
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "evidence_complaint",
+   "tool": "build_evidence_pdf",
+   "summary": "Evidence file ready: 10 events, 6 sources, fingerprint 8762de0962e5.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "sha256": "8762de0962e5c09d795f62379bc7b210d64c7181df4d7dcaedb57e4a01fd2ee0"
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "case_tracker",
+   "tool": "advance_state",
+   "summary": "rights_computed -> complaint_ready: reply and evidence file drafted",
+   "inputs": {
+    "from": "rights_computed",
+    "to": "complaint_ready"
+   },
+   "outputs": {
+    "reason": "reply and evidence file drafted"
+   },
+   "via": "adk"
+  },
+  {
+   "at": "2026-10-17T06:59:12+00:00",
+   "trace_id": "041640fadeae4c07afff5fd63c0a3032",
+   "agent": "evidence_complaint",
+   "tool": "draft_complaint",
+   "summary": "Reply drafted with 5 citation(s). Waiting for the officer's approval; nothing has been sent.",
+   "inputs": {
+    "case_id": "c8701f90"
+   },
+   "outputs": {
+    "_contract": "ComplaintDraft: valid",
+    "kind": "customer_reply",
+    "recipient": "customer",
+    "title": "Reply to the customer",
+    "to": "Asha Verma (CUST-88213)",
+    "text": "To: Asha Verma (CUST-88213)\nFrom: Grievance Redressal Cell, Sunrise Bank\nSubject: Your complaint MIL-24001: Rs 4,250 on 10 Oct 2026 (UTR 612345678901)\n\nDear Asha Verma,\n\nThank you for your complaint received on 11 Oct 2026. We have investigated it using your documents and our own payment records.\n\nWhat happened: Rs 4,250 was debited from your account on 10 Oct 2026 [1][2]. However, the payee's ban...",
+    "original_text": "To: Asha Verma (CUST-88213)\nFrom: Grievance Redressal Cell, Sunrise Bank\nSubject: Your complaint MIL-24001: Rs 4,250 on 10 Oct 2026 (UTR 612345678901)\n\nDear Asha Verma,\n\nThank you for your complaint received on 11 Oct 2026. We have investigated it using your documents and our own payment records.\n\nWhat happened: Rs 4,250 was debited from your account on 10 Oct 2026 [1][2]. However, the payee's ban...",
+    "citations": [
+     {
+      "n": 1,
+      "label": "Bank statement, 10 Oct 2026",
+      "source": "bank_statement.csv",
+      "ref": "doc-2",
+      "url": null
+     },
+     {
+      "n": 2,
+      "label": "Remitter CBS, 10 Oct 2026 10:42",
+      "source": "remitter_cbs_612345678901.log",
+      "ref": "doc-4",
+      "url": null
+     },
+     {
+      "n": 3,
+      "label": "NPCI switch, 10 Oct 2026 10:42",
+      "source": "npci_switch_612345678901.log",
+      "ref": "doc-5",
+      "url": null
+     },
+     {
+      "n": 4,
+      "label": "RBI-TAT-UPI-01: UPI transfer: debited, beneficiary not credited",
+      "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+      "ref": "RBI-TAT-UPI-01",
+      "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693"
+     },
+     {
+      "n": 5,
+      "label": "RBI-IOS-2026-01: Integrated Ombudsman Scheme 2026: when the customer can go to the RBI",
+      "source": "Integrated Ombudsman Scheme 2026, salient features (bank-hosted summary, not RBI's text)",
+      "ref": "RBI-IOS-2026-01",
+      "url": "https://protium.co.in/wp-content/uploads/2026/06/Salient-Features.pdf"
+     }
+    ],
+    "edited_by_officer": false,
+    "locked_reason": null
+   },
+   "via": "adk"
+  }
+ ],
+ "decisions": [],
+ "chat": [],
+ "analysis_started_at": "2026-10-17T06:59:12+00:00",
+ "rights_ready_at": "2026-10-17T06:59:12+00:00",
+ "status": "Overdue",
+ "failure_point": "Beneficiary bank",
+ "confidence": 0.92,
+ "cluster_id": null,
+ "compensation_inr": 600,
+ "days_overdue": 6,
+ "deadline": "2026-10-11",
+ "relative": "Breached 6 days ago",
+ "breached": true,
+ "referral_required": false,
+ "needs_approval": true,
+ "has_evidence": true,
+ "route": {
+  "next_agent": null,
+  "reason": "Waiting for the officer to approve: Approve and send the reply to the customer.",
+  "blocked_on_officer": true
+ },
+ "state_help": "Reply and evidence file drafted, awaiting approval"
+}

@@ -1,0 +1,101 @@
+[
+ {
+  "id": "A",
+  "hero": "Case A",
+  "title": "UPI: debited, beneficiary not credited",
+  "rail": "UPI",
+  "blurb": "Rs 4,250 sent by UPI a week ago. The payee never got it. T+1 breached by 6 days.",
+  "customer_ref": "CUST-88213",
+  "customer_name": "Asha Verma",
+  "received_days_ago": 6,
+  "seed": "intake"
+ },
+ {
+  "id": "B",
+  "hero": "Case B",
+  "title": "Card online: merchant never confirmed",
+  "rail": "CARD_ONLINE",
+  "blurb": "Rs 12,800 card payment to TravelKart. Only a statement and an SMS so far.",
+  "customer_ref": "CUST-40117",
+  "customer_name": "Rahul Menon",
+  "received_days_ago": 7,
+  "seed": "analyzed"
+ },
+ {
+  "id": "C1",
+  "hero": "Case C",
+  "title": "UPI: debited, beneficiary not credited",
+  "rail": "UPI",
+  "blurb": "Rs 1,999 to Coastal Co-operative Bank, 5 days ago, early evening.",
+  "customer_ref": "CUST-51902",
+  "customer_name": "Imran Khan",
+  "received_days_ago": 4,
+  "seed": "analyzed"
+ },
+ {
+  "id": "C2",
+  "hero": "Case C",
+  "title": "UPI: debited, beneficiary not credited",
+  "rail": "UPI",
+  "blurb": "Rs 7,500 to Coastal Co-operative Bank, same evening.",
+  "customer_ref": "CUST-51977",
+  "customer_name": "Meena Pillai",
+  "received_days_ago": 4,
+  "seed": "analyzed"
+ },
+ {
+  "id": "C3",
+  "hero": "Case C",
+  "title": "UPI: debited, beneficiary not credited",
+  "rail": "UPI",
+  "blurb": "Rs 350 to Coastal Co-operative Bank, same evening.",
+  "customer_ref": "CUST-52004",
+  "customer_name": "Sourav Das",
+  "received_days_ago": 3,
+  "seed": "intake"
+ },
+ {
+  "id": "D",
+  "hero": "",
+  "title": "IMPS: debited, beneficiary not credited",
+  "rail": "IMPS",
+  "blurb": "Rs 25,000 IMPS to Harbour Bank timed out at the switch.",
+  "customer_ref": "CUST-30551",
+  "customer_name": "Kavya Rao",
+  "received_days_ago": 2,
+  "seed": "analyzed"
+ },
+ {
+  "id": "E",
+  "hero": "",
+  "title": "Card at PoS: no charge slip, account debited",
+  "rail": "CARD_POS",
+  "blurb": "Rs 3,640 at FreshCart. Terminal declined, card still charged. Inside T+5.",
+  "customer_ref": "CUST-77420",
+  "customer_name": "Neha Joshi",
+  "received_days_ago": 2,
+  "seed": "analyzed"
+ },
+ {
+  "id": "F",
+  "hero": "",
+  "title": "ATM: cash not dispensed, account debited",
+  "rail": "ATM",
+  "blurb": "Rs 10,000 at another bank's ATM. Reply already approved and sent.",
+  "customer_ref": "CUST-19008",
+  "customer_name": "Arjun Patel",
+  "received_days_ago": 7,
+  "seed": "sent"
+ },
+ {
+  "id": "G",
+  "hero": "",
+  "title": "UPI: customer says payee not credited",
+  "rail": "UPI",
+  "blurb": "Rs 6,000 to Pinecrest Bank. Our records show the credit went through.",
+  "customer_ref": "CUST-66310",
+  "customer_name": "Lakshmi Iyer",
+  "received_days_ago": 5,
+  "seed": "analyzed"
+ }
+]

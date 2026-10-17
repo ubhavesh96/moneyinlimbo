@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}Model status{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Oversight</div>
+  <h1>Model status</h1>
+  <p>Evaluated live against the project file's prototype targets at {{ ev.computed_at|nicetime }}.</p></div></div>
+<div class="notice warn mb"><svg class="icon"><use href="#i-info"/></svg><span><strong>Read this first.</strong> {{ ev.caveat }}</span></div>
+
+<section class="tablecard mb-lg" data-tour="targets"><div class="tablewrap"><table>
+  <thead><tr><th>Prototype measure</th><th>Target</th><th>Result</th><th>Detail</th></tr></thead>
+  <tbody>
+    {% with x=ev.diagnosis %}<tr><td class="strong">Failure-point diagnosis matches the label</td><td>≥ 80% on synthetic cases</td>
+      <td class="{% if x.accuracy_answered >= x.target %}target-ok{% else %}target-miss{% endif %}">{{ x.accuracy_answered|pct }}</td>
+      <td class="small muted">{{ x.answered }} of {{ x.cases }} answered ({{ x.accuracy_all|pct }} counting all); {{ x.abstained }} asked for a document instead of guessing.</td></tr>{% endwith %}
+    {% with x=ev.maths %}<tr><td class="strong">Deadline and compensation are exact</td><td>100%</td>
+      <td class="{% if x.rate == 1 %}target-ok{% else %}target-miss{% endif %}">{{ x.exact }} / {{ x.cases }}</td><td class="small muted">Includes the project file's Case A: T+1 breached by 6 days = Rs 600.</td></tr>{% endwith %}
+    {% with x=ev.contract %}<tr><td class="strong">Outputs valid against the typed contract</td><td>100%</td>
+      <td class="{% if x.rate == 1 %}target-ok{% else %}target-miss{% endif %}">{{ x.valid }} / {{ x.outputs }}</td><td class="small muted">Tool outputs (Timeline, FailureDiagnosis, RightsCard and more) and every stored case file.</td></tr>{% endwith %}
+    {% with x=ev.approval %}<tr><td class="strong">Messages sent without approval</td><td>0</td>
+      <td class="{% if x.without_approval == 0 %}target-ok{% else %}target-miss{% endif %}">{{ x.without_approval }}</td><td class="small muted">{{ x.sent }} item(s) sent, each matched to an officer's approval.</td></tr>{% endwith %}
+    {% with x=ev.officer %}<tr><td class="strong">Time from upload to rights card</td><td>&lt; 2 minutes</td>
+      <td>{% if x.upload_to_rights_seconds_median is not None %}{{ x.upload_to_rights_seconds_median }} s{% else %}—{% endif %}</td><td class="small muted">Median over {{ x.upload_to_rights_runs }} live run(s); seeded cases excluded.</td></tr>
+    <tr><td class="strong">Officer edit rate on drafted replies</td><td>Measured</td><td>{% if x.edit_rate is not None %}{{ x.edit_rate|pct }}{% else %}—{% endif %}</td><td class="small muted">{{ x.edited }} of {{ x.replies_sent }} sent replies were edited.</td></tr>{% endwith %}
+    {% with x=ev.clusters %}<tr><td class="strong">Outage detection on the seeded cluster</td><td>Precision · recall</td>
+      <td>{{ x.precision|pct }} · {{ x.recall|pct }}</td><td class="small muted">{{ x.flagged }} flagged of {{ x.failed_transactions }} failed transactions; cluster size {{ x.seeded_cluster_size }}.</td></tr>{% endwith %}
+  </tbody></table></div></section>
+
+{% if ev.diagnosis.misses %}
+<details class="disclose mb"><summary>Diagnosis misses ({{ ev.diagnosis.misses|length }} shown)</summary><pre class="snippet mt-sm">{{ ev.diagnosis.misses|prettyjson }}</pre></details>
+{% endif %}
+
+<div class="grid-2">
+  <section class="card" data-tour="layers"><div class="card-h"><h2>Evaluation layers</h2></div>
+    <div class="card-b"><ol class="steps">{% for l in ev.layers %}
+      <li><div class="h"><span class="strong">{{ l.n }}. {{ l.name }}</span><span class="chip {% if l.status == 'Measured live' or l.status == 'Run in CI' %}ok{% elif l.status == 'Not run' %}warn{% else %}info{% endif %} tiny">{{ l.status }}</span></div>
+        <p class="tiny muted mt-sm">{{ l.detail }}</p></li>{% endfor %}</ol></div></section>
+  <section class="card"><div class="card-h"><h2>Agent catalogue</h2></div>
+    <div class="card-b"><ol class="steps">{% for name, job, tools, out in agents %}
+      <li><div class="h"><span class="strong">{{ name }}</span><span class="tag">{{ out }}</span></div>
+        <p class="tiny muted mt-sm">{{ job }}</p><p class="tiny mono faint mt-sm">{{ tools }}</p></li>{% endfor %}</ol></div></section>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+[
+ {
+  "case_id": "f28a6aa5",
+  "ref": "MIL-24008",
+  "title": "ATM: cash not dispensed, account debited",
+  "at": "2026-10-17T06:59:12+00:00",
+  "actor": "Priya Sharma",
+  "role": "Grievance officer",
+  "action": "approved",
+  "kind": "customer_reply",
+  "reason": "",
+  "compensation_inr": 300
+ }
+]

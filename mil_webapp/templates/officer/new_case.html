@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}New complaint{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Grievance desk</div>
+  <h1>Open a complaint</h1>
+  <p>Upload what the customer handed in. The agents pull the bank's own records for the reference and investigate.</p></div></div>
+
+{% if error %}<div class="notice bad mb" role="alert"><svg class="icon"><use href="#i-alert"/></svg><span>{{ error }}</span></div>{% endif %}
+
+<section class="card mb-lg" style="max-width:920px" data-tour="upload">
+  <div class="card-h"><h2>Upload the customer's documents</h2><span class="tiny faint">.txt · .csv · .pdf · up to 2 MB each</span></div>
+  <form class="card-b stack lg" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="formgrid">
+      <div class="field"><label for="customer_ref">Customer reference</label><input id="customer_ref" name="customer_ref" required value="{{ values.customer_ref|default:'' }}" placeholder="CUST-88213"></div>
+      <div class="field"><label for="customer_name">Customer name</label><input id="customer_name" name="customer_name" value="{{ values.customer_name|default:'' }}" placeholder="Asha Verma"></div>
+      <div class="field"><label for="received">Complaint received on</label><input id="received" name="received" type="date" value="{{ values.received|default:'' }}"></div>
+    </div>
+    <label class="dropzone" data-dropzone style="position:relative">
+      <svg class="icon"><use href="#i-upload"/></svg>
+      <span class="strong">Drop files here or click to choose</span>
+      <span class="tiny faint" data-dropzone-names>Complaint letter, bank statement, SMS text, merchant mail</span>
+      <input id="files" name="files" type="file" multiple required accept=".txt,.csv,.pdf">
+    </label>
+    <p class="tiny faint">Screenshots need Document AI OCR, which is not part of this local prototype. Paste the SMS or receipt text into a .txt file.</p>
+    <div><button class="btn primary lg" type="submit"><svg class="icon"><use href="#i-spark"/></svg>Open case and investigate</button></div>
+  </form>
+</section>
+
+<div class="row between mb" style="align-items:flex-end">
+  <div><h2 style="font-size:22px">Or start from a sample</h2>
+    <p class="muted mt-sm">Synthetic hero cases from the project file. Open one directly, or download its documents to try the upload.</p></div>
+</div>
+<div class="samples" data-tour="samples">
+  {% for s in samples %}
+    <form class="card sample" method="post">
+      {% csrf_token %}<input type="hidden" name="sample_id" value="{{ s.id }}">
+      <div class="row between">{% if s.hero %}<span class="chip info tiny">{{ s.hero }}</span>{% else %}<span class="chip tiny plain">Queue case</span>{% endif %}<span class="tag">{{ s.rail|rail }}</span></div>
+      <h3>{{ s.title }}</h3>
+      <p class="small muted">{{ s.blurb }}</p>
+      <div class="row mt-sm"><button class="btn sm tonal" type="submit">Open this case</button>
+        <a class="btn sm ghost" href="/api/samples/{{ s.id }}/download"><svg class="icon sm"><use href="#i-download"/></svg>Documents</a></div>
+    </form>
+  {% endfor %}
+</div>
+{% endblock %}

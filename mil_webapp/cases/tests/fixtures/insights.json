@@ -1,0 +1,93 @@
+{
+ "kpis": {
+  "open_cases": 9,
+  "awaiting_approval": 6,
+  "breached_open": 5,
+  "compensation_owed_inr": 1900,
+  "referrals_flagged": 1,
+  "replies_sent": 1,
+  "replies_within_tat": 0,
+  "median_days_to_reply": 7,
+  "edit_rate": 0.0,
+  "approvals_logged": 1
+ },
+ "clusters": [
+  {
+   "cluster_id": "CLU-COASTAL-2026-10-12",
+   "beneficiary": "Coastal Co-operative Bank",
+   "code": "BENE_CBS_TIMEOUT",
+   "date": "2026-10-12",
+   "window": "18:07-19:58",
+   "failed": 40,
+   "in_window": 54,
+   "failure_rate": 0.741,
+   "baseline_rate": 0.0113,
+   "unreversed": 40,
+   "likely_root_cause": "Coastal Co-operative Bank: beneficiary bank's core banking did not respond to the credit request",
+   "cases": [
+    {
+     "id": "5d4edb36",
+     "ref": "MIL-24004",
+     "title": "UPI: debited, beneficiary not credited",
+     "rail": "UPI",
+     "amount_inr": 7500.0,
+     "utr": "634500000102",
+     "customer_ref": "CUST-51977",
+     "customer_name": "Meena Pillai",
+     "received": "2026-10-13",
+     "state": "complaint_ready",
+     "status": "Overdue",
+     "step": null,
+     "failure_point": "Beneficiary bank",
+     "confidence": 0.97,
+     "cluster_id": "CLU-COASTAL-2026-10-12",
+     "compensation_inr": 400,
+     "days_overdue": 4,
+     "deadline": "2026-10-13",
+     "relative": "Breached 4 days ago",
+     "breached": true,
+     "referral_required": false,
+     "needs_approval": true,
+     "assigned_officer": "Priya Sharma",
+     "error": null,
+     "has_evidence": true
+    },
+    {
+     "id": "8ba7d7b1",
+     "ref": "MIL-24003",
+     "title": "UPI: debited, beneficiary not credited",
+     "rail": "UPI",
+     "amount_inr": 1999.0,
+     "utr": "634500000101",
+     "customer_ref": "CUST-51902",
+     "customer_name": "Imran Khan",
+     "received": "2026-10-13",
+     "state": "complaint_ready",
+     "status": "Overdue",
+     "step": null,
+     "failure_point": "Beneficiary bank",
+     "confidence": 0.97,
+     "cluster_id": "CLU-COASTAL-2026-10-12",
+     "compensation_inr": 400,
+     "days_overdue": 4,
+     "deadline": "2026-10-13",
+     "relative": "Breached 4 days ago",
+     "breached": true,
+     "referral_required": false,
+     "needs_approval": true,
+     "assigned_officer": "Priya Sharma",
+     "error": null,
+     "has_evidence": true
+    }
+   ],
+   "affected_without_complaint": 38
+  }
+ ],
+ "store": {
+  "transactions": 4961,
+  "failed": 106,
+  "unreversed": 64,
+  "days": 30,
+  "entity": "Sunrise Bank"
+ }
+}

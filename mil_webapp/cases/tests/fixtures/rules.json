@@ -1,0 +1,206 @@
+{
+ "disclaimer": "Rule table transcribed from the project file (RBI circular RBI/2019-20/67, 20 Sep 2019; Integrated Ombudsman Scheme 2026 salient features). Synthetic demo. Verify every row against the current RBI text before any real use; this is not legal advice.",
+ "last_reviewed": "2026-10-16",
+ "rbi_wait_days": 30,
+ "rbi_file_within_days": 90,
+ "rules": [
+  {
+   "id": "RBI-TAT-UPI-01",
+   "title": "UPI transfer: debited, beneficiary not credited",
+   "rail": "UPI",
+   "failure_types": [
+    "upi_transfer_not_credited"
+   ],
+   "tat_days": 1,
+   "tat_basis": "calendar days after the transaction day (T+1)",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": true,
+   "text": "Where the customer's account is debited but the beneficiary is not credited, the transaction must be reversed by T+1. Compensation of Rs 100 per day is payable for delay beyond T+1, credited automatically without a complaint.",
+   "keywords": [
+    "upi",
+    "transfer",
+    "debit",
+    "not credited",
+    "beneficiary",
+    "reversal",
+    "p2p"
+   ]
+  },
+  {
+   "id": "RBI-TAT-UPI-02",
+   "title": "UPI merchant: debited, merchant confirmation not received",
+   "rail": "UPI_MERCHANT",
+   "failure_types": [
+    "upi_merchant_not_confirmed"
+   ],
+   "tat_days": 5,
+   "tat_basis": "calendar days after the transaction day (T+5)",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": true,
+   "text": "Where the account is debited but the merchant's confirmation is not received, the amount must be auto-reversed by T+5. Compensation of Rs 100 per day is payable for delay beyond T+5.",
+   "keywords": [
+    "upi",
+    "merchant",
+    "confirmation",
+    "order",
+    "debit",
+    "not confirmed"
+   ]
+  },
+  {
+   "id": "RBI-TAT-IMPS-01",
+   "title": "IMPS: debited, beneficiary not credited",
+   "rail": "IMPS",
+   "failure_types": [
+    "imps_not_credited"
+   ],
+   "tat_days": 1,
+   "tat_basis": "calendar days after the transaction day (T+1)",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": true,
+   "text": "Where an IMPS transfer debits the account but the beneficiary is not credited, the amount must be reversed by T+1. Compensation of Rs 100 per day is payable beyond T+1.",
+   "keywords": [
+    "imps",
+    "transfer",
+    "debit",
+    "not credited",
+    "beneficiary"
+   ]
+  },
+  {
+   "id": "RBI-TAT-C2C-01",
+   "title": "Card to card: debited, beneficiary not credited",
+   "rail": "CARD_TO_CARD",
+   "failure_types": [
+    "card_to_card_not_credited"
+   ],
+   "tat_days": 1,
+   "tat_basis": "calendar days after the transaction day (T+1)",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": true,
+   "text": "For a card-to-card transfer where the card account is debited but the beneficiary card is not credited, the amount must be reversed by T+1. Compensation of Rs 100 per day is payable beyond T+1.",
+   "keywords": [
+    "card to card",
+    "card transfer",
+    "debit",
+    "not credited"
+   ]
+  },
+  {
+   "id": "RBI-TAT-POS-01",
+   "title": "Card at PoS: debited, no charge slip generated",
+   "rail": "CARD_POS",
+   "failure_types": [
+    "card_pos_not_confirmed"
+   ],
+   "tat_days": 5,
+   "tat_basis": "calendar days after the transaction day (T+5)",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (TAT harmonisation for failed transactions)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": true,
+   "text": "Where a card is debited at a point-of-sale terminal but no charge slip is generated, the amount must be auto-reversed by T+5. Compensation of Rs 100 per day is payable beyond T+5.",
+   "keywords": [
+    "pos",
+    "point of sale",
+    "charge slip",
+    "card",
+    "terminal",
+    "swipe"
+   ]
+  },
+  {
+   "id": "RBI-TAT-CNP-01",
+   "title": "Card online (card not present): debited, no merchant confirmation",
+   "rail": "CARD_ONLINE",
+   "failure_types": [
+    "card_online_not_confirmed"
+   ],
+   "tat_days": 5,
+   "tat_basis": "calendar days after the transaction day (T+5) - PENDING VERIFICATION",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (row not captured in the project file; verify)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": false,
+   "text": "Card-not-present (e-commerce) debit without merchant confirmation. The project file marks this row 'Verify in circular'. The demo applies T+5 and Rs 100 per day as a placeholder and flags the result for the officer.",
+   "keywords": [
+    "card online",
+    "cnp",
+    "e-commerce",
+    "online",
+    "merchant",
+    "gateway",
+    "not confirmed"
+   ]
+  },
+  {
+   "id": "RBI-TAT-ATM-01",
+   "title": "ATM: account debited, cash not dispensed",
+   "rail": "ATM",
+   "failure_types": [
+    "atm_cash_not_dispensed"
+   ],
+   "tat_days": 5,
+   "tat_basis": "calendar days after the transaction day (T+5)",
+   "compensation_per_day": 100,
+   "source": "RBI circular RBI/2019-20/67, 20 Sep 2019 (not in the project file's table; verify)",
+   "url": "https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=11693",
+   "verified": false,
+   "text": "Where cash is not dispensed but the account is debited, the amount must be reversed by T+5. Compensation of Rs 100 per day is payable beyond T+5.",
+   "keywords": [
+    "atm",
+    "cash",
+    "not dispensed",
+    "withdrawal"
+   ]
+  },
+  {
+   "id": "RBI-IO-REFERRAL-01",
+   "title": "Internal Ombudsman: refer complaints the entity proposes to reject",
+   "rail": "ANY",
+   "failure_types": [],
+   "tat_days": 0,
+   "tat_basis": "before the final reply is sent",
+   "compensation_per_day": 0,
+   "source": "RBI press release on Internal Ombudsman referrals, Jul 2026",
+   "url": "https://www.rbi.org.in/Scripts/BS_PressReleaseDisplay.aspx?prid=63137",
+   "verified": true,
+   "text": "Complaints that the entity proposes to reject, wholly or partly, must be referred to its Internal Ombudsman before the final decision is conveyed to the customer. RBI asked entities in July 2026 to do this without exception.",
+   "keywords": [
+    "internal ombudsman",
+    "referral",
+    "reject",
+    "partly rejected"
+   ]
+  },
+  {
+   "id": "RBI-IOS-2026-01",
+   "title": "Integrated Ombudsman Scheme 2026: when the customer can go to the RBI",
+   "rail": "ANY",
+   "failure_types": [],
+   "tat_days": 30,
+   "tat_basis": "calendar days after the complaint reached the entity; file within 90 days after that",
+   "compensation_per_day": 0,
+   "source": "Integrated Ombudsman Scheme 2026, salient features (bank-hosted summary, not RBI's text)",
+   "url": "https://protium.co.in/wp-content/uploads/2026/06/Salient-Features.pdf",
+   "verified": false,
+   "text": "If the entity does not reply within 30 days, or the customer is not satisfied with the reply, the customer may complain to the RBI Ombudsman at cms.rbi.org.in, free of charge. The project file uses a 90-day filing window. Compensation up to Rs 30 lakh for consequential loss and Rs 3 lakh for harassment. Helpline 14448.",
+   "keywords": [
+    "ombudsman",
+    "rbi",
+    "30 days",
+    "cms",
+    "escalate",
+    "scheme"
+   ]
+  }
+ ]
+}

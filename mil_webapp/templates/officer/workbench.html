@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% load mil static %}
+{% block title %}{{ case.ref }}{% endblock %}
+{% block content %}
+{% with d=case.diagnosis r=case.rights ref=case.referral ap=case.approval %}
+<div id="wb" data-case="{{ case.id }}" {% if case.running %}data-running{% endif %}>
+
+<header class="casehead" aria-label="Case header" data-tour="casehead">
+  <div class="row between start">
+    <div class="grow">
+      <div class="crumbs">
+        <a href="{% url 'officer-queue' %}"><svg class="icon sm"><use href="#i-back"/></svg>My queue</a>
+        <span>/</span><span class="caseid">{{ case.ref }}</span>
+        <span class="chip {{ case.status|status_slug }}">{{ case.status }}</span>
+      </div>
+      <h1>{{ case.title }}</h1>
+      <div class="meta">
+        <span><strong>{{ case.customer_name }}</strong> · {{ case.customer_ref }}</span>
+        <span class="num"><strong>{{ case.amount_inr|inr }}</strong> disputed</span>
+        <span>{{ case.rail|rail }}{% if case.utr %} · <span class="mono">{{ case.utr }}</span>{% endif %}</span>
+        <span>Received {{ case.received|nicedate }}</span>
+      </div>
+    </div>
+    <div class="row">
+      {% if r %}
+        <div class="clock {% if case.state == 'resolved' or case.state == 'closed' or d.failure_type == 'credited_successfully' %}done{% elif r.breached %}late{% else %}due{% endif %}" role="region" aria-label="Statutory turnaround deadline" data-tour="clock">
+          <span class="ring"><svg class="icon sm"><use href="#i-clock"/></svg></span>
+          <span><b>{{ case.relative }}</b><span class="tiny">Target T+{{ r.tat_days }} · {{ r.deadline|nicedate }}</span></span>
+        </div>
+      {% endif %}
+      <button type="button" class="btn outline" data-open="activity" data-tour="agentlog"><svg class="icon sm"><use href="#i-spark"/></svg>What the agent did</button>
+      {% if case.state in "intake reconstructed diagnosed rights_computed complaint_ready" %}
+        <button type="button" class="btn outline" data-open="dlg-request"><svg class="icon sm"><use href="#i-upload"/></svg>Request docs</button>{% endif %}
+      {% if case.has_evidence %}<a class="btn outline" href="/api/cases/{{ case.id }}/evidence.pdf" target="_blank" rel="noopener"><svg class="icon sm"><use href="#i-download"/></svg>Evidence file</a>{% endif %}
+    </div>
+  </div>
+  <div class="safeguard">
+    <span class="lock"><svg class="icon sm"><use href="#i-lock"/></svg>Nothing is sent to the customer, the Internal Ombudsman or the RBI until you approve.</span>
+    <span class="stepper" aria-label="Case state: {{ case.state|humanize }}" data-tour="stepper">
+      {% for s, cls in statepath %}{% if not forloop.first %}<span class="bar"></span>{% endif %}<span class="st {{ cls }}" {% if cls == "now" %}aria-current="step"{% endif %}><i></i>{{ s|humanize }}</span>{% endfor %}
+    </span>
+    {% if case.timeline %}<div class="seg" role="group" aria-label="Layout">
+      <button type="button" data-layout="" aria-pressed="true">Balanced</button>
+      <button type="button" data-layout="focus-evidence" aria-pressed="false">Evidence</button>
+      <button type="button" data-layout="focus-draft" aria-pressed="false">Draft</button></div>{% endif %}
+  </div>
+</header>
+
+{% if case.running %}
+  <div class="notice info mb" role="status"><svg class="icon"><use href="#i-spark"/></svg>
+    <span><strong>The agents are working</strong>{% if case.step %} · step {{ case.step }}{% endif %}. This page updates by itself.</span></div>
+{% endif %}
+{% if case.error %}<div class="notice bad mb" role="alert"><svg class="icon"><use href="#i-alert"/></svg><span>{{ case.error }}</span></div>{% endif %}
+
+{% if case.state == "intake" and not case.running %}
+<section class="card" style="max-width:760px" data-tour="run">
+  <div class="card-b stack" style="padding:28px">
+    <span class="chip new" style="justify-self:start">Ready to investigate</span>
+    <h2 style="font-size:22px">Let the agents investigate this complaint</h2>
+    <p class="muted">They will pull the bank's own records for the reference, rebuild the payment trail, find where it failed,
+       apply the RBI turnaround rule and draft a cited reply for your approval. Usually a few seconds.</p>
+    <div class="stack sm">{% for doc in case.documents %}<div class="doc"><span class="row nowrap"><span class="ficon"><svg class="icon"><use href="#i-file"/></svg></span>
+      <span><span class="strong small">{{ doc.name }}</span><span class="tiny faint" style="display:block">{{ doc.kind|humanize }} · from the customer</span></span></span></div>{% endfor %}</div>
+    <div><button type="button" class="btn primary lg" data-investigate><svg class="icon"><use href="#i-play"/></svg>Run investigation</button></div>
+  </div>
+</section>
+{% endif %}
+
+{% if case.timeline %}
+<div class="panes" id="panes">
+  <!-- evidence -->
+  <section class="card" aria-label="Evidence" data-tour="evidence">
+    <div class="pane-tabs"><div class="seg" role="tablist" style="display:flex">
+      <button type="button" role="tab" aria-selected="true" aria-controls="tab-tl" id="t-tl" style="flex:1">Event timeline ({{ case.timeline|length }})</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="tab-docs" id="t-docs" style="flex:1">Documents ({{ case.documents|length }})</button>
+    </div></div>
+    <div id="tab-tl" role="tabpanel" aria-labelledby="t-tl" class="card-b scroll">
+      <ol class="tl">
+        {% for e in case.timeline %}
+          <li class="{% if e.source in 'NPCI switch Remitter CBS Beneficiary CBS Gateway log ATM switch' %}bank{% elif e.source == 'Officer' or e.source == 'System' %}officer{% endif %}" id="{{ e.id }}">
+            <div class="when"><span>{{ e.date|nicedate }}{% if e.time %} · {{ e.time }}{% endif %} · {{ e.id }}</span><span class="tag">{{ e.source }}</span></div>
+            <p>{{ e.text }}</p>
+            {% if e.snippet %}<div class="snippet">{{ e.snippet }}</div>{% endif %}
+            {% if e.doc_id %}<button type="button" class="linkbtn" data-open="doc-{{ e.doc_id }}"><svg class="icon sm"><use href="#i-eye"/></svg>View source</button>{% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+      {% if case.awaiting_documents %}
+        <div class="missing stack sm" role="note">
+          <span class="lbl">Missing document</span>
+          <p class="small strong">{{ case.awaiting_documents.0 }}</p>
+          {% if d.what_would_raise_confidence %}<p class="tiny muted">{{ d.what_would_raise_confidence }}</p>{% endif %}
+          <div class="row">
+            <button type="button" class="btn sm" data-open="dlg-request">Request it</button>
+            <button type="button" class="btn sm tonal" data-practice-doc title="Practice control">Customer sent it (practice)</button>
+            <label class="btn sm outline">Upload<input type="file" multiple hidden data-upload accept=".txt,.csv,.pdf,.log"></label>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    <div id="tab-docs" role="tabpanel" aria-labelledby="t-docs" class="card-b scroll" hidden>
+      {% for doc in case.documents %}
+        <div class="doc {% if doc.origin != 'customer' %}bankdoc{% endif %}">
+          <span class="row nowrap grow"><span class="ficon"><svg class="icon"><use href="#i-{% if doc.origin == 'customer' %}file{% else %}bank{% endif %}"/></svg></span>
+            <span class="grow"><span class="strong small" style="overflow-wrap:anywhere">{{ doc.name }}</span>
+              <span class="tiny faint" style="display:block">{% if doc.origin == "customer" %}From the customer{% else %}Bank records via connector{% endif %} · {{ doc.kind|humanize }}</span></span></span>
+          <button type="button" class="btn sm ghost" data-open="doc-{{ doc.id }}">Open</button>
+        </div>
+      {% endfor %}
+      {% if case.state in "intake reconstructed diagnosed rights_computed complaint_ready" %}
+        <label class="btn sm outline mt-sm"><svg class="icon sm"><use href="#i-upload"/></svg>Add documents and re-investigate<input type="file" multiple hidden data-upload accept=".txt,.csv,.pdf,.log"></label>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- investigation -->
+  <div class="stack lg">
+    {% if d %}
+    <section class="card diag {% if d.confidence < 0.75 %}lowconf{% endif %}" aria-labelledby="h-diag" data-tour="diagnosis">
+      <div class="card-h"><h2 id="h-diag"><span class="num-badge">1</span>Diagnosis and failure point</h2><span class="tiny faint">AI-proposed</span></div>
+      <div class="card-b stack">
+        <div class="row between">
+          <span class="pointchip">{{ d.effective_point }}</span>
+          {% if case.state in "reconstructed diagnosed rights_computed complaint_ready" %}<button type="button" class="btn sm outline" data-open="dlg-override">Override</button>{% endif %}
+        </div>
+        <div class="stack xs">
+          <div class="row between small"><span class="muted">Confidence · <span class="strong" style="color:var(--text)">{{ d.confidence|conf_level|title }}</span></span><span class="num strong">{{ d.confidence|pct }}</span></div>
+          <div class="meter {{ d.confidence|conf_level }}" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{% widthratio d.confidence 1 100 %}" aria-label="Diagnosis confidence"><i style="width:{% widthratio d.confidence 1 100 %}%"></i></div>
+        </div>
+        <p>{{ d.summary }}</p>
+        {% if d.override %}<div class="notice info"><svg class="icon"><use href="#i-info"/></svg><span><strong>Your override.</strong> The AI proposed {{ d.failure_point }}. {{ d.override.reason }}</span></div>{% endif %}
+        {% if d.cluster_id %}<div class="notice bad"><svg class="icon"><use href="#i-layers"/></svg><span><strong>Outage cluster {{ d.cluster_id }}.</strong> Many payments failed the same way in this window. <a href="{% url 'officer-insights' %}">See the cluster</a></span></div>{% endif %}
+        {% if d.outage %}<div class="notice warn"><svg class="icon"><use href="#i-alert"/></svg><span><strong>Declared incident.</strong> {{ d.outage }}</span></div>{% endif %}
+        <details class="disclose" open><summary>Why ({{ d.reasons|length }} cited reasons)</summary>
+          <ol class="reasons mt-sm">{% for x in d.reasons %}<li>{{ x }}</li>{% endfor %}</ol></details>
+        {% if d.next_actor %}<p class="small"><span class="faint">Next action</span><br>{{ d.next_actor }}</p>{% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if r %}
+    <section class="card" aria-labelledby="h-rights" data-tour="rights">
+      <div class="card-h"><h2 id="h-rights"><span class="num-badge">2</span>Turnaround and compensation</h2>
+        {% if r.rule_verified %}<span class="chip ok tiny">Rule verified</span>{% else %}<span class="chip warn tiny">Rule pending verification</span>{% endif %}</div>
+      <div class="card-b stack">
+        <div><div class="strong">{{ r.rule_title }}</div>
+          <div class="tiny faint">{{ r.rule_source }} · {% if r.rule_url %}<a href="{{ r.rule_url }}" target="_blank" rel="noopener" class="mono">{{ r.rule_id }}</a>{% else %}<span class="mono">{{ r.rule_id }}</span>{% endif %}</div></div>
+        <div class="money">
+          <div class="rowx"><span class="muted">Compensation owed</span><span class="tiny faint">{{ r.days_overdue }} day{{ r.days_overdue|pluralize }} overdue</span></div>
+          <div class="big mt-sm">{{ r.compensation_inr|inr }}</div>
+          <div class="mono tiny muted mt-sm">{{ r.arithmetic }}</div>
+          <div class="rowx mt"><span class="muted">Principal to credit</span><span class="num">{{ r.principal_to_credit_inr|inr }}</span></div>
+          <div class="rowx total"><span>Total to credit</span><span class="num">{{ r.total_to_credit_inr|inr }}</span></div>
+        </div>
+        <dl class="facts">
+          <dt>Transaction day (T)</dt><dd>{{ r.txn_date|nicedate }}</dd>
+          <dt>Turnaround</dt><dd>T+{{ r.tat_days }} · {{ r.tat_basis }}</dd>
+          <dt>Reversal deadline</dt><dd>{{ r.deadline|nicedate }}</dd>
+          <dt>As of</dt><dd>{{ r.as_of|nicedate }}{% if r.reversal_done %} · reversal posted{% endif %}</dd>
+        </dl>
+        <div class="engine"><svg class="icon sm"><use href="#i-cpu"/></svg>
+          <span><strong>Calculated by the rules engine, not by AI.</strong> Calendar days from T; compensation stops when the reversal posts.</span></div>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if ref %}
+    <section class="card" aria-labelledby="h-ref" data-tour="referral">
+      <div class="card-h"><h2 id="h-ref"><span class="num-badge">3</span>Ombudsman referral check</h2>
+        {% if ref.internal_ombudsman_required %}<span class="chip bad tiny">Internal Ombudsman: required</span>{% else %}<span class="chip ok tiny">No referral needed</span>{% endif %}</div>
+      <div class="card-b stack">
+        <p><span class="faint">Proposed outcome</span> <span class="strong">{{ ref.proposed_outcome|title }}</span></p>
+        <p class="small muted">{{ ref.reason }}</p>
+        <dl class="facts"><dt>Customer may go to RBI from</dt><dd>{{ ref.rbi_eligible_from|nicedate }}</dd><dt>Last date to file</dt><dd>{{ ref.rbi_file_by|nicedate }}</dd></dl>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if case.sent %}
+    <section class="card" aria-labelledby="h-track" data-tour="tracking">
+      <div class="card-h"><h2 id="h-track">Tracking</h2><span class="tiny faint">Case date {{ case.today|nicedate }}</span></div>
+      <div class="card-b stack">
+        {% for f in case.followups %}<div class="followup">{% if f.done %}<span class="chip ok tiny">Done</span>{% else %}<span class="chip warn tiny">Due {{ f.due|nicedate }}</span>{% endif %}<span>{{ f.what }}</span></div>{% endfor %}
+        <hr class="divider">
+        <div class="tiny faint">Practice controls · simulate the bank, customer and regulator</div>
+        <div class="practice">
+          {% if case.state == "awaiting_party" or case.state == "escalated" %}
+            {% if "customer_reply" in case.sent %}
+              <button type="button" class="btn sm tonal" data-sim="reversal_posted">Payments ops posts the credit</button>
+              <button type="button" class="btn sm" data-sim="rbi_complaint">Customer files with RBI Ombudsman</button>
+            {% endif %}
+            {% if "internal_ombudsman" in case.sent and not "customer_reply" in case.sent %}
+              <button type="button" class="btn sm tonal" data-sim="io_decision">Internal Ombudsman concurs</button>{% endif %}
+          {% endif %}
+          {% if case.state != "closed" %}
+            <button type="button" class="btn sm outline" data-sim="days" data-days="2">Skip 2 days</button>
+            <button type="button" class="btn sm outline" data-sim="days" data-days="31">Skip 31 days</button>{% endif %}
+          {% if case.state == "resolved" %}<button type="button" class="btn sm primary" data-close-case>Close and archive</button>{% endif %}
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="card" aria-labelledby="h-ask" data-tour="ask">
+      <div class="card-h"><h2 id="h-ask"><svg class="icon"><use href="#i-msg"/></svg>Ask about this case</h2><span class="tiny faint">Facts only</span></div>
+      <div class="card-b">
+        {% if case.chat %}<div class="chat" aria-live="polite">
+          {% for m in case.chat %}<div class="{% if m.role == 'officer' %}q{% else %}a{% endif %}">{{ m.text }}</div>{% endfor %}
+        </div>{% else %}<p class="small faint">Try "Why did it fail?" or "How much is owed?"</p>{% endif %}
+        <form data-chat class="chatbox">
+          <label class="sr-only" for="chatq">Question</label>
+          <input id="chatq" name="q" maxlength="500" placeholder="Ask a question">
+          <button class="btn primary sm" type="submit" aria-label="Ask"><svg class="icon sm"><use href="#i-send"/></svg></button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- draft and approval gate -->
+  <section class="card" aria-labelledby="h-draft" data-tour="draft">
+    {% if ap and ap.status != "sent" %}
+      {% with draft=case.drafts|get:ap.kind %}
+      <div class="draftbar">
+        <div class="row nowrap"><h2 id="h-draft" style="font-size:15px">{{ draft.title }}</h2>
+          {% if draft.edited_by_officer %}<span class="chip warn tiny">Edited</span>{% else %}<span class="chip info tiny">AI draft</span>{% endif %}</div>
+        <div class="seg"><button type="button" data-diff aria-pressed="false" title="Compare with the AI draft">Diff</button>
+          <button type="button" data-restore="{{ ap.kind }}" title="Restore the AI draft">Restore</button></div>
+      </div>
+      <div class="card-b stack">
+        <div class="tiny faint">To {{ draft.to }}</div>
+        {% if ap.status == "rejected" %}<div class="notice bad" role="alert"><svg class="icon"><use href="#i-alert"/></svg><span><strong>You rejected this draft.</strong> {{ ap.rejection_reason }} Edit it (or restore the AI draft) and save to approve.</span></div>{% endif %}
+        <label class="sr-only" for="draft">Draft text</label>
+        <textarea id="draft" class="draft" data-kind="{{ ap.kind }}">{{ draft.text }}</textarea>
+        <div class="diffview" id="diffview" hidden aria-live="polite"></div>
+        {{ draft.original_text|json_script:"original-text" }}
+        <p class="tiny" id="dirty" hidden style="color:var(--orange)">Unsaved changes. Save the draft before approving.</p>
+        {% if draft.citations %}
+        <details class="cites disclose"><summary>Cited sources ({{ draft.citations|length }})</summary>
+          <ol>{% for c in draft.citations %}<li id="cite-{{ c.n }}"><b>[{{ c.n }}]</b><span>{{ c.label }} · {% if c.url %}<a href="{{ c.url }}" target="_blank" rel="noopener">{{ c.source }}</a>{% else %}{{ c.source }}{% endif %}</span></li>{% endfor %}</ol>
+        </details>{% endif %}
+      </div>
+      <div class="gate" aria-labelledby="h-gate" data-tour="gate">
+        <div class="head"><span id="h-gate" class="strong row nowrap"><svg class="icon" style="color:var(--green)"><use href="#i-check"/></svg>Human approval gate</span>
+          <span class="tiny faint" id="checkcount"></span></div>
+        <div class="progress" aria-hidden="true"><i id="gateprogress"></i></div>
+        <div class="checks">
+          <label><input type="checkbox" data-check="timeline" {% if ap.checklist.timeline %}checked{% endif %}><span>I verified the timeline against the source documents and bank records</span></label>
+          <label><input type="checkbox" data-check="amounts" {% if ap.checklist.amounts %}checked{% endif %}><span>I confirmed the arithmetic and compensation{% if r %} ({{ r.compensation_inr|inr }}, total {{ r.total_to_credit_inr|inr }}){% endif %}{% if r and not r.rule_verified %} <em>— rule pending verification</em>{% endif %}</span></label>
+          <label><input type="checkbox" data-check="text" {% if ap.checklist.text %}checked{% endif %}><span>I read and approve the text above</span></label>
+        </div>
+        <p class="notice warn tiny mt-sm" id="gatehint" role="alert" hidden></p>
+        <div class="actions">
+          <button type="button" class="btn" data-save>Save draft</button>
+          {% if ap.status == "pending" %}<button type="button" class="btn danger" data-open="dlg-reject">Reject…</button>{% else %}<span></span>{% endif %}
+          <button type="button" class="btn go lg" data-approve-open {% if ap.status == "rejected" %}disabled{% endif %}><svg class="icon"><use href="#i-send"/></svg>Approve and send</button>
+        </div>
+      </div>
+      {% endwith %}
+    {% else %}
+      <div class="draftbar"><h2 id="h-draft" style="font-size:15px">Replies and referrals</h2></div>
+      <div class="card-b stack">
+        {% for kind, info in case.sent.items %}
+          <div class="sentbox"><svg class="icon"><use href="#i-check"/></svg><span><strong>Sent: {% with dr=case.drafts|get:kind %}{{ dr.title }}{% endwith %}</strong><br>
+            <span class="muted">To {{ info.to }} on {{ info.date|nicedate }} · <span class="mono">{{ info.reference }}</span> · approved by {{ info.by }}</span></span></div>
+        {% endfor %}
+        {% for kind, dr in case.drafts.items %}
+          {% if dr.locked_reason %}<div class="notice warn"><svg class="icon"><use href="#i-lock"/></svg><span><strong>{{ dr.title }}</strong> is locked: {{ dr.locked_reason }}.</span></div>{% endif %}
+          <details class="disclose" {% if not case.sent %}open{% endif %}><summary>{{ dr.title }}{% if kind in case.sent %} · as sent{% endif %}</summary>
+            <div class="diffview mt-sm">{{ dr.text|cited }}</div></details>
+        {% empty %}
+          {% if not case.running %}<p class="small muted">No draft yet.{% if case.awaiting_documents %} The agents are waiting for a document before they apply the rules.{% endif %}</p>{% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endif %}
+
+<!-- dialogs -->
+{% for doc in case.documents %}
+<dialog id="doc-{{ doc.id }}" class="wide" aria-labelledby="doc-{{ doc.id }}-h">
+  <div class="dh"><div><h2 id="doc-{{ doc.id }}-h">{{ doc.name }}</h2><p class="tiny faint">{{ doc.kind|humanize }} · {% if doc.origin == "customer" %}provided by the customer{% else %}pulled from bank systems by the connector (synthetic){% endif %}</p></div>
+    <button type="button" class="iconbtn" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+  <div class="db"><pre>{{ doc.text }}</pre></div>
+</dialog>
+{% endfor %}
+
+<dialog id="activity" class="sheet" aria-labelledby="activity-h">
+  <div class="dh"><h2 id="activity-h">What the agent did</h2><button type="button" class="iconbtn" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+  <div class="db">
+    <p class="tiny faint">Trace <span class="mono">{{ case.trace_id }}</span> · every tool call, state change and decision, oldest first.</p>
+    <ol class="steps">
+      {% for a in case.audit %}
+        <li><div class="h"><span class="strong">{{ a.agent|humanize|capfirst }}</span><span class="tiny faint">{{ a.at|nicetime }}</span></div>
+          <div class="row mt-sm"><span class="tag">{{ a.tool }}</span>{% if a.via != "adk" %}<span class="chip tiny plain">{{ a.via }}</span>{% endif %}</div>
+          <p class="small muted mt-sm">{{ a.summary }}</p></li>
+      {% endfor %}
+    </ol>
+  </div>
+</dialog>
+
+<dialog id="dlg-reject" aria-labelledby="rej-h">
+  <form data-reject>
+    <div class="dh"><h2 id="rej-h">Reject this draft</h2><button type="button" class="iconbtn" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+    <div class="db"><div class="field"><label for="rej-reason">Reason</label>
+      <textarea id="rej-reason" name="reason" minlength="10" required placeholder="e.g. The reply names the wrong beneficiary bank."></textarea>
+      <span class="hint">Logged in the decision log. At least 10 characters.</span></div></div>
+    <div class="df"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary" type="submit">Reject draft</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlg-request" aria-labelledby="req-h">
+  <form data-request>
+    <div class="dh"><h2 id="req-h">Request a document</h2><button type="button" class="iconbtn" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+    <div class="db">
+      <div class="field"><label for="req-doc">Document</label><input id="req-doc" name="document" required minlength="3" value="{{ case.awaiting_documents.0|default:'' }}"></div>
+      <div class="field"><label for="req-note">Note to the customer</label><textarea id="req-note" name="note" placeholder="Optional"></textarea>
+        <span class="hint">Simulated: the request is logged on the timeline; nothing leaves this prototype.</span></div>
+    </div>
+    <div class="df"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary" type="submit">Log request</button></div>
+  </form>
+</dialog>
+
+{% if d %}
+<dialog id="dlg-override" aria-labelledby="ov-h">
+  <form data-override>
+    <div class="dh"><h2 id="ov-h">Override the failure point</h2><button type="button" class="iconbtn" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+    <div class="db">
+      <p class="small muted">The agent proposed <strong>{{ d.failure_point }}</strong> at {{ d.confidence|pct }}. Your override is logged and the reply is redrafted.</p>
+      <div class="field"><label for="ov-point">Failure point</label>
+        <select id="ov-point" name="failure_point">{% for p in failure_points %}<option {% if p == d.effective_point %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="ov-reason">Reason</label><textarea id="ov-reason" name="reason" minlength="10" required></textarea></div>
+    </div>
+    <div class="df"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary" type="submit">Save override</button></div>
+  </form>
+</dialog>
+{% endif %}
+
+{% if ap %}
+<dialog id="dlg-approve" aria-labelledby="ap-h">
+  <div class="dh"><h2 id="ap-h">Approve and send?</h2><button type="button" class="iconbtn" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button></div>
+  <div class="db">
+    {% with draft=case.drafts|get:ap.kind %}
+    {% if r and ap.kind != "internal_ombudsman" %}
+      <div class="money"><div class="rowx"><span class="muted">Total credit to the customer</span></div>
+        <div class="big mt-sm">{{ r.total_to_credit_inr|inr }}</div>
+        <div class="rowx mt"><span class="muted">Refund</span><span class="num">{{ r.principal_to_credit_inr|inr }}</span></div>
+        <div class="rowx"><span class="muted">Compensation</span><span class="num">{{ r.compensation_inr|inr }}</span></div></div>
+    {% endif %}
+    <dl class="facts"><dt>Item</dt><dd>{{ draft.title }}</dd><dt>Recipient</dt><dd>{{ draft.to }}</dd><dt>Approved by</dt><dd>{{ me.name }}</dd></dl>
+    {% endwith %}
+    <p class="tiny faint">Your approval is recorded with a timestamp. The Case Tracker sends only this item.</p>
+  </div>
+  <div class="df"><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn go" data-approve="{{ ap.kind }}"><svg class="icon sm"><use href="#i-send"/></svg>Approve and send</button></div>
+</dialog>
+{% endif %}
+</div>
+{% endwith %}
+{% endblock %}
+{% block scripts %}<script src="{% asset 'js/workbench.js' %}"></script>{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Not available{% endblock %}
+{% block content %}
+<section class="card center-card">
+  <div class="bigicon"><svg class="icon" style="width:28px;height:28px"><use href="#i-alert"/></svg></div>
+  <h1 style="font-size:24px">That page is not available</h1>
+  <p class="muted mt-sm">{{ detail|default:"The agent service could not answer this request." }}</p>
+  <a class="btn primary lg mt" href="{% url 'index' %}">Back to the start</a>
+</section>
+{% endblock %}

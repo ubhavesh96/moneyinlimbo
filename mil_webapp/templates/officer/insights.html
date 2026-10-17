@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}Insights{% endblock %}
+{% block content %}
+{% with k=data.kpis %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Grievance desk</div>
+  <h1>Insights</h1>
+  <p>How the desk is doing against the north star (complaints with a cited, approved reply inside the deadline), and outages that affect many customers at once.</p></div></div>
+
+<section class="kpis" aria-label="Desk metrics" data-tour="kpis">
+  <div class="kpi"><div class="ico"><svg class="icon"><use href="#i-send"/></svg></div><div class="v">{{ k.replies_sent }}</div><div class="l">Replies approved and sent</div></div>
+  <div class="kpi green"><div class="ico"><svg class="icon"><use href="#i-check"/></svg></div><div class="v">{{ k.replies_within_tat }}</div><div class="l">Sent before the reversal deadline</div></div>
+  <div class="kpi indigo"><div class="ico"><svg class="icon"><use href="#i-clock"/></svg></div><div class="v">{% if k.median_days_to_reply is not None %}{{ k.median_days_to_reply }} d{% else %}—{% endif %}</div><div class="l">Median complaint to reply</div></div>
+  <div class="kpi orange"><div class="ico"><svg class="icon"><use href="#i-pen"/></svg></div><div class="v">{% if k.edit_rate is not None %}{{ k.edit_rate|pct }}{% else %}—{% endif %}</div><div class="l">Officer edit rate on AI drafts</div></div>
+  <div class="kpi red"><div class="ico"><svg class="icon"><use href="#i-scale"/></svg></div><div class="v">{{ k.compensation_owed_inr|inr }}</div><div class="l">Compensation accruing on open cases</div></div>
+</section>
+{% endwith %}
+
+<h2 class="mb" style="font-size:22px">Outage clusters</h2>
+{% for c in data.clusters %}
+<section class="card cluster-card mb" data-tour="cluster">
+  <div class="card-h"><h2><svg class="icon" style="color:var(--red)"><use href="#i-layers"/></svg>{{ c.likely_root_cause }}</h2><span class="tag">{{ c.cluster_id }}</span></div>
+  <div class="card-b stack lg">
+    <div class="hero">
+      <div class="stat"><div class="v">{{ c.failed }}<span class="faint" style="font-size:15px"> / {{ c.in_window }}</span></div><div class="l">Failed {{ c.window }} on {{ c.date|nicedate }}</div></div>
+      <div class="stat red"><div class="v">{{ c.failure_rate|pct }}</div><div class="l">Failure rate · baseline {{ c.baseline_rate|pct }}</div></div>
+      <div class="stat red"><div class="v">{{ c.unreversed }}</div><div class="l">Still not reversed</div></div>
+      <div class="stat"><div class="v">{{ c.affected_without_complaint }}</div><div class="l">Affected customers who have not complained</div></div>
+    </div>
+    <div class="notice warn"><svg class="icon"><use href="#i-flash"/></svg><span><strong>Suggested action.</strong> RBI expects compensation to be credited without a complaint.
+      Ask payments operations to reverse the {{ c.unreversed }} unreversed transactions in this window and pay compensation proactively;
+      the complaints below can then be answered together. Code {{ c.code }}.</span></div>
+    <div class="tablecard" style="box-shadow:var(--e1)"><div class="tablewrap"><table>
+      <thead><tr><th>Case</th><th>Customer</th><th class="right">Amount</th><th>Deadline</th><th>Status</th></tr></thead>
+      <tbody>{% for r in c.cases %}
+        <tr data-href="{% url 'officer-case' r.id %}"><td><a class="caseid" href="{% url 'officer-case' r.id %}">{{ r.ref }}</a></td><td>{{ r.customer_name }}</td>
+          <td class="right num">{{ r.amount_inr|inr }}</td><td>{{ r.relative }}</td><td><span class="chip {{ r.status|status_slug }}">{{ r.status }}</span></td></tr>
+      {% empty %}<tr><td colspan="5" class="muted">No open complaint is linked to this cluster yet. Investigate the New cases in the queue.</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+</section>
+{% empty %}
+<div class="card"><div class="card-b muted">No outage cluster detected in the last 30 days.</div></div>
+{% endfor %}
+<p class="tiny faint mt">Scanned {{ data.store.transactions }} synthetic transactions over {{ data.store.days }} days for {{ data.store.entity }}: {{ data.store.failed }} failed, {{ data.store.unreversed }} not reversed. Stand-in for the BigQuery outage query in the cloud design.</p>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load mil %}
+{% block title %}Decision log{% endblock %}
+{% block content %}
+<div class="pagehead"><div>
+  <div class="eyebrow">Oversight</div>
+  <h1>Decision log</h1>
+  <p>Every human decision across all complaints, newest first: approvals, rejections, overrides, document requests and closures.</p></div></div>
+<section class="tablecard" data-tour="table"><div class="tablewrap"><table>
+  <thead><tr><th>Case</th><th>Decision</th><th>Officer</th><th>Reason</th><th class="right">Compensation</th></tr></thead>
+  <tbody>{% for d in decisions %}
+    <tr data-href="{% url 'auditor-replay' d.case_id %}"><td><a class="caseid" href="{% url 'auditor-replay' d.case_id %}">{{ d.ref }}</a><span class="sub">{{ d.title }}</span></td>
+      <td><span class="chip {% if d.action == 'approved' %}ok{% elif d.action == 'rejected_draft' %}bad{% elif d.action == 'override' %}warn{% else %}info{% endif %}">{{ d.action|humanize|capfirst }}</span>
+        {% if d.kind %}<span class="sub">{{ d.kind|humanize }}</span>{% endif %}</td>
+      <td>{{ d.actor }}<span class="sub">{{ d.role }} · {{ d.at|nicetime }}</span></td>
+      <td class="small muted">{{ d.reason|default:"—" }}</td>
+      <td class="right num">{% if d.compensation_inr is not None %}{{ d.compensation_inr|inr }}{% else %}—{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="muted" style="padding:40px;text-align:center">No decisions yet.</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}
