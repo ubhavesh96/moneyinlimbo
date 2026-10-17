@@ -1,0 +1,40 @@
+[project]
+name = "mil-adk-agent"
+version = "0.1.0"
+description = "Money in Limbo: ADK multi-agent service that resolves stuck bank and merchant transactions"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-adk~=1.28.1",
+    "google-genai>=1.0.0",
+    "jinja2>=3.1.6",
+    "python-multipart>=0.0.27",
+    "fpdf2>=2.8",
+    "pypdf>=5.0",
+    "python-dotenv>=1.2.2",
+    "uvicorn[standard]>=0.35.0",
+]
+
+[tool.setuptools.packages.find]
+# runtime/ (case files) and tests/ are not part of the package
+include = ["mil_agent*"]
+
+[tool.setuptools.package-data]
+mil_agent = ["data/*.json", "prompts/templates/**/*.jinja2"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.2.0",
+    "ruff>=0.12.12",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100

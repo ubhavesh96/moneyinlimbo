@@ -1,0 +1,7 @@
+{
+  "note": "Declared incidents (status pages, NPCI circulars). Stand-in for the BigQuery incident table. days_ago is relative to today so the demo lines up. Undeclared outages are found by cluster detection over the transaction store instead.",
+  "outages": [
+    {"entity": "PaySwift gateway", "days_ago": 9, "start": "20:30", "end": "23:45", "note": "PaySwift status page: delayed merchant callbacks for card-not-present payments (synthetic)."},
+    {"entity": "NPCI IMPS", "days_ago": 20, "start": "09:00", "end": "10:30", "note": "Partial IMPS degradation (synthetic)."}
+  ]
+}
