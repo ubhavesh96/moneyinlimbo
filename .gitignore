@@ -1,0 +1,15 @@
+.venv/
+.env
+runtime/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# local artefacts never committed
+*.xlsx
+*.pdf
+*.zip
+sample_files/
+.vscode/
+.idea/
+*.egg-info/
